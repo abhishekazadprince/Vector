@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Philosophy of Vectors</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Merriweather', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0f172a',
+                        secondary: '#334155',
+                        accent: '#3b82f6',
+                        paper: '#fdfbf7',
+                        darkpaper: '#0f172a',
+                    },
+                    typography: (theme) => ({
+                        DEFAULT: {
+                            css: {
+                                color: theme('colors.slate.700'),
+                                a: { color: theme('colors.blue.500'), '&:hover': { color: theme('colors.blue.700') } },
+                                h1: { color: theme('colors.slate.900'), fontFamily: 'Inter, sans-serif', fontWeight: '800' },
+                                h2: { color: theme('colors.slate.800'), fontFamily: 'Inter, sans-serif', fontWeight: '700' },
+                                h3: { color: theme('colors.slate.800'), fontFamily: 'Inter, sans-serif', fontWeight: '600' },
+                                h4: { color: theme('colors.slate.800'), fontFamily: 'Inter, sans-serif', fontWeight: '600' },
+                                blockquote: { 
+                                    borderLeftColor: theme('colors.slate.300'), 
+                                    color: theme('colors.slate.600'), 
+                                    fontStyle: 'italic',
+                                    backgroundColor: theme('colors.slate.50'),
+                                    padding: '1rem 1.5rem',
+                                    borderRadius: '0 0.5rem 0.5rem 0'
+                                },
+                            },
+                        },
+                        dark: {
+                            css: {
+                                color: theme('colors.slate.300'),
+                                a: { color: theme('colors.blue.400'), '&:hover': { color: theme('colors.blue.300') } },
+                                h1: { color: theme('colors.white') },
+                                h2: { color: theme('colors.slate.100') },
+                                h3: { color: theme('colors.slate.200') },
+                                h4: { color: theme('colors.slate.200') },
+                                blockquote: { 
+                                    borderLeftColor: theme('colors.slate.600'), 
+                                    color: theme('colors.slate.400'), 
+                                    backgroundColor: theme('colors.slate.800/50'),
+                                },
+                                strong: { color: theme('colors.white') },
+                            },
+                        },
+                    }),
+                }
+            },
+            plugins: [
+                function({ addBase, theme }) {
+                    addBase({
+                        'h1, h2, h3, h4': { fontFamily: theme('fontFamily.sans') },
+                        'p, blockquote': { fontFamily: theme('fontFamily.serif') },
+                    })
+                }
+            ]
+        }
+    </script>
+    
+    <!-- Tailwind Typography Plugin for Prose styling -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <!-- MathJax for Equations -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                tags: 'ams'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Merriweather', serif; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Drop Cap Styling */
+        .drop-cap > p:first-of-type::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            padding-right: 0.5rem;
+            padding-top: 0.2rem;
+            font-weight: 900;
+            font-family: 'Inter', sans-serif;
+        }
+        .dark .drop-cap > p:first-of-type::first-letter {
+            color: #f1f5f9;
+        }
+        .drop-cap > p:first-of-type::first-letter {
+            color: #1e293b;
+        }
+
+        .sidebar-link { transition: all 0.2s; }
+        .sidebar-link:hover { padding-left: 1.5rem; }
+        
+        /* Dark Mode Sidebar Active */
+        .dark .sidebar-active { color: #f8fafc; border-left: 4px solid #3b82f6; background-color: #1e293b; }
+        .sidebar-active { color: #0f172a; font-weight: 600; border-left: 4px solid #3b82f6; padding-left: 1.25rem; background-color: #f1f5f9; }
+        
+        .simulation-container {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin: 3rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .dark .simulation-container {
+            background: #1e293b;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+        .simulation-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        canvas {
+            cursor: crosshair;
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+        .dark canvas { background-color: #0f172a; }
+        canvas { background-color: #ffffff; transition: background-color 0.3s ease; }
+        
+        .sim-panel {
+            width: 100%;
+            padding: 1.25rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        .dark .sim-panel { background: #1e293b; border-top: 1px solid #334155; color: #cbd5e1; }
+        .sim-panel { background: #f8fafc; border-top: 1px solid #e2e8f0; color: #334155; }
+        
+        .line-break { margin-bottom: 1rem; line-height: 1.8; }
+        
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 50; }
+            #sidebar.open { transform: translateX(0); }
+            #overlay.open { display: block; }
+        }
+
+        .dark .math-highlight { background-color: #0c4a6e; border-left: 4px solid #0ea5e9; color: #e0f2fe; }
+        .math-highlight { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1rem; margin: 1.5rem 0; border-radius: 0 0.5rem 0.5rem 0; transition: all 0.3s ease; }
+
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #3b82f6;
+            z-index: 100;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+        @media (max-width: 768px) { #progress-bar { top: 60px; } }
+        
+        /* Toggle Switch styling */
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-200 antialiased flex h-screen overflow-hidden bg-white dark:bg-slate-900 transition-colors duration-300">
+
+    <!-- Reading Progress Bar -->
+    <div id="progress-bar"></div>
+
+    <!-- Mobile Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-slate-900/50 hidden z-40 transition-opacity" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-full flex flex-col fixed md:relative shrink-0 overflow-y-auto z-50 transition-transform duration-300">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+            <h1 class="text-2xl font-black font-sans text-slate-900 dark:text-white leading-tight tracking-tight">The Philosophy of Vectors</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 font-sans font-medium uppercase tracking-widest">Reality vs. Description</p>
+            
+            <!-- Dark Mode Toggle -->
+            <div class="mt-6 flex items-center justify-between">
+                <span class="text-xs font-sans font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Dark Mode</span>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" name="toggle" id="theme-toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-transform duration-300 transform translate-x-0 checked:translate-x-5" onclick="toggleTheme()"/>
+                    <label for="theme-toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 dark:bg-blue-500 cursor-pointer transition-colors duration-300"></label>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1 font-sans text-sm overflow-y-auto pb-10">
+            <a href="#ch1" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 rounded-md sidebar-link sidebar-active" onclick="closeMenu()">1. The Problem of Description</a>
+            <a href="#ch2" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">2. Changing the Origin</a>
+            <a href="#int-a" class="block py-2 px-3 text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider pl-6 hover:text-slate-600 dark:hover:text-slate-300" onclick="closeMenu()">Interlude A: Galileo's Ship</a>
+            <a href="#ch3" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">3. Changing Direction</a>
+            <a href="#int-b" class="block py-2 px-3 text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider pl-6 hover:text-slate-600 dark:hover:text-slate-300" onclick="closeMenu()">Interlude B: The Compass</a>
+            <a href="#ch4" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">4. Why Vectors Were Needed</a>
+            <a href="#ch5" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">5. Symmetry and Conservation</a>
+            <a href="#ch6" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">6. Beyond Coordinates</a>
+            <a href="#int-c" class="block py-2 px-3 text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider pl-6 hover:text-slate-600 dark:hover:text-slate-300" onclick="closeMenu()">Interlude C: Empirical Reality</a>
+            <a href="#ch7" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">7. The Real Lesson</a>
+            <a href="#ch8" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">8. Beyond Vectors</a>
+            <a href="#epilogue" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">Epilogue</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 h-full overflow-y-auto relative scroll-smooth bg-paper dark:bg-[#0b1120] transition-colors duration-300">
+        <!-- Mobile Header -->
+        <header class="md:hidden sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex items-center z-30 shadow-sm">
+            <button onclick="toggleMenu()" class="p-2 mr-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <span class="font-bold font-sans text-slate-800 dark:text-white truncate">The Philosophy of Vectors</span>
+        </header>
+
+        <!-- Book Content Container -->
+        <div class="max-w-3xl mx-auto px-6 py-12 md:py-20 prose prose-slate dark:prose-dark prose-lg transition-colors duration-300">
+            
+            <!-- CHAPTER 1 -->
+            <section id="ch1" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 1</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-12 text-slate-900 dark:text-white tracking-tight">The Problem of Description</h1>
+                
+                <h3>A Tree, A Field, and Two Observers</h3>
+                <p class="line-break">Imagine a large open field. Near the center stands a tree. A surveyor arrives and decides to measure its location. He places the origin of his coordinate system at the southwest corner of the field. After measuring carefully, he records the position of the tree as <strong>(20, 15)</strong>.</p>
+                <p class="line-break">Later another surveyor visits the same field. He chooses a different origin, perhaps near a well located elsewhere in the field. Measuring the same tree, he records its position as <strong>(8, 12)</strong>.</p>
+                <p class="line-break">Now a curious question arises. Which surveyor is correct?</p>
+                <p class="line-break">The answer is that both are correct. The numbers are different, yet they refer to the same tree. The tree did not move. Only the description changed.</p>
+                <p class="line-break">This simple observation contains one of the deepest ideas in physics.</p>
+                <blockquote class="text-xl font-medium text-slate-800 dark:text-slate-200 border-l-4 border-blue-500 dark:border-blue-400">Nature and our description of nature are not the same thing.</blockquote>
+
+                <!-- SIMULATION 1 -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                            Interactive: The Observers' Choice
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Drag the Blue (Surveyor 1) and Red (Surveyor 2) origins to see how the coordinates of the tree change, even though the physical tree never moves.</p>
+                    </div>
+                    <canvas id="sim1-canvas" width="600" height="400"></canvas>
+                    <div class="sim-panel flex justify-around bg-slate-50 dark:bg-slate-900/80">
+                        <div class="text-blue-700 dark:text-blue-400 font-semibold bg-blue-100/50 dark:bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 shadow-sm">Surveyor 1 Tree Pos: <span id="s1-pos" class="font-mono">(x, y)</span></div>
+                        <div class="text-red-700 dark:text-red-400 font-semibold bg-red-100/50 dark:bg-red-900/30 px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 shadow-sm">Surveyor 2 Tree Pos: <span id="s2-pos" class="font-mono">(x, y)</span></div>
+                    </div>
+                </div>
+
+                <h3>The Map Is Not the Territory</h3>
+                <p class="line-break">Cartographers know this well. A city can appear on many different maps. One map may use kilometers. Another may use miles. One may place north at the top. Another may place north elsewhere. One may show only roads. Another may show terrain.</p>
+                <p class="line-break">The maps differ. The city remains unchanged.</p>
+                <p class="line-break">The famous saying <em>"The map is not the territory"</em> captures an important lesson. A map is a representation. The territory is the reality being represented. Physics constantly faces the same situation. Coordinates are maps. Nature is the territory.</p>
+
+                <h3>What Should a Physical Law Depend On?</h3>
+                <p class="line-break">Suppose a scientist discovers a law governing the motion of a particle. Should that law depend on whether the origin of coordinates is chosen near a tree or near a well?</p>
+                <p class="line-break">Surely not. Such a dependence would be absurd. The particle has no knowledge of where an observer places the origin. Similarly, should a law depend on whether the axes are drawn on blue paper or white paper?</p>
+                <p class="line-break">Again, no. Physical laws should describe nature itself. They should not depend on arbitrary choices made by observers.</p>
+                
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-6 rounded-xl mt-12 not-prose font-sans transition-colors">
+                    <h4 class="font-bold text-lg mb-4 text-slate-800 dark:text-white">Chapter 1 Summary</h4>
+                    <ul class="space-y-2 text-slate-600 dark:text-slate-300">
+                        <li class="flex items-start gap-2"><span class="text-blue-500 font-bold">•</span> Physical objects and their descriptions are not the same.</li>
+                        <li class="flex items-start gap-2"><span class="text-blue-500 font-bold">•</span> Coordinates are human-made tools for describing positions.</li>
+                        <li class="flex items-start gap-2"><span class="text-blue-500 font-bold">•</span> The same object can possess many different coordinate descriptions.</li>
+                        <li class="flex items-start gap-2"><span class="text-blue-500 font-bold">•</span> Physical laws should not depend on arbitrary coordinate choices.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- CHAPTER 2 -->
+            <section id="ch2" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 2</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">Changing the Origin</h1>
+                
+                <h3>The Uniformity of Space</h3>
+                <p class="line-break">In the previous chapter we considered a tree standing in a field. Two observers assigned different coordinates to the same tree because they chose different origins. The coordinates changed. The tree did not.</p>
+                <p class="line-break">This observation raises an important question: <em>Why are we free to choose the origin wherever we like?</em></p>
+                <p class="line-break">The answer appears obvious: because the origin is merely a human choice. But behind this simple answer lies a remarkable fact about nature itself.</p>
+                <blockquote class="border-l-4 border-emerald-500 dark:border-emerald-400 text-xl font-medium text-slate-800 dark:text-slate-200">Nature does not appear to care where we place the origin. Space appears uniform.</blockquote>
+                <p class="line-break">Uniformity means that one location is fundamentally equivalent to another. Of course, local conditions may differ. One place may contain a mountain, another a river. These differences arise from physical circumstances, not because space itself changes its fundamental character from place to place.</p>
+
+                <!-- SIMULATION 2 -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            Interactive: Translating the Coordinate System
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">A puck slides across a frictionless surface, obeying Newton's laws. Drag the gray coordinate frame (the observer's "laboratory") around. Notice how the puck's physical motion remains completely unaffected by where you place the frame.</p>
+                    </div>
+                    <canvas id="sim2-canvas" width="600" height="300"></canvas>
+                    <div class="sim-panel text-center text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-700">
+                        <span class="font-semibold text-emerald-700 dark:text-emerald-400">Observation:</span> The physical laws inside the frame are identical to those outside it.
+                    </div>
+                </div>
+
+                <h3>The First Hint of Symmetry</h3>
+                <p class="line-break">When we move the origin while leaving everything else unchanged, we perform a <em>translation</em>. The numerical description changes. The physical situation does not.</p>
+                <p class="line-break">The fact that the laws remain unchanged when the origin is shifted is called a <strong>symmetry</strong>. In everyday language, symmetry often refers to visual balance. In physics, the meaning is broader: A symmetry is a change that leaves something important unchanged.</p>
+            </section>
+
+            <!-- INTERLUDE A -->
+            <section id="int-a" class="mb-24 px-8 py-10 bg-slate-900 text-slate-300 rounded-2xl shadow-xl not-prose border border-slate-800">
+                <h2 class="text-slate-400 font-semibold text-xs mb-3 font-sans tracking-[0.25em] uppercase">Interlude A</h2>
+                <h1 class="text-3xl font-bold font-sans mb-6 text-white">Galileo and the Uniformity of Motion</h1>
+                <div class="font-serif leading-relaxed space-y-4">
+                    <p>Consider a sailor situated below decks in a large, smoothly moving ship. Galileo Galilei famously proposed this thought experiment in 1632. If the ship moves at a constant velocity, without pitching or rolling, the sailor cannot perform any mechanical experiment that will reveal whether the ship is moving or standing still.</p>
+                    <p>Water drips straight down into a vessel. Butterflies fly with equal ease in all directions. A ball thrown forward requires no more effort than a ball thrown backward.</p>
+                    <p>This is a profound extension of the uniformity of space. Not only does nature not care <em>where</em> you place your laboratory (translation in space), it also does not care if your laboratory is moving uniformly (translation in time and space). The laws of mechanics appear identical. This realization strengthened the idea that absolute location and absolute velocity are purely matters of description, not underlying physical reality.</p>
+                </div>
+            </section>
+
+            <!-- CHAPTER 3 -->
+            <section id="ch3" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 3</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">Changing Direction</h1>
+                
+                <h3>Facing East or Facing North</h3>
+                <p class="line-break">In the previous chapter we changed the origin of coordinates. Now let us consider a different change. Instead of moving the origin, suppose we keep the origin fixed and <em>rotate</em> the coordinate axes.</p>
+                <p class="line-break">Imagine standing in an open field. You throw a ball toward the east. Now turn yourself through ninety degrees and throw the ball again with exactly the same effort. The ball now moves toward the north. The direction has changed. Yet the laws governing the motion have not changed. Nature seems indifferent to whether we choose east, west, north, or south.</p>
+                
+                <blockquote>No direction in empty space appears to be fundamentally special. Space is isotropic.</blockquote>
+
+                <!-- SIMULATION 3 -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            Interactive: Rotational Invariance
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">The black arrow represents a physical vector in space. Use the slider to rotate your coordinate axes. Notice how the numerical $(x, y)$ components change wildly, but the actual physical length of the vector remains absolutely invariant.</p>
+                    </div>
+                    <canvas id="sim3-canvas" width="600" height="400"></canvas>
+                    <div class="sim-panel flex flex-col items-center gap-4 bg-slate-50 dark:bg-slate-900/80">
+                        <div class="flex items-center gap-4 w-full max-w-md">
+                            <label class="font-semibold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Rotate Axes:</label>
+                            <input type="range" id="sim3-slider" min="0" max="360" value="0" class="flex-1 accent-purple-600">
+                            <span id="sim3-angle-display" class="w-12 text-right font-mono font-bold text-slate-700 dark:text-slate-300">0°</span>
+                        </div>
+                        <div class="flex gap-8 text-lg font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm px-6 py-3 rounded-xl transition-colors">
+                            <div class="text-blue-700 dark:text-blue-400">x: <span id="sim3-vx">4.00</span></div>
+                            <div class="text-red-700 dark:text-red-400">y: <span id="sim3-vy">3.00</span></div>
+                            <div class="text-slate-800 dark:text-white font-bold border-l-2 border-slate-300 dark:border-slate-600 pl-6">Length: <span id="sim3-len">5.00</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>A Hint from Everyday Experience</h3>
+                <p class="line-break">Imagine spinning a top. Once spinning smoothly, it tends to maintain its rotational motion. Or consider a figure skater pulling in her arms and spinning faster. These familiar phenomena involve angular momentum. For centuries, angular momentum conservation was regarded simply as a fact of nature.</p>
+                <p class="line-break">Later, physicists realized that its origin is connected with something deeper: the equality of directions in space. The reason angular momentum is conserved is mathematically linked to the fact that no direction in space is fundamentally privileged.</p>
+
+                <!-- JEE ADVANCED BOX: CHAPTER 3 -->
+                <div class="bg-purple-50/50 dark:bg-purple-950/20 border-l-4 border-purple-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-purple-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">IIT JEE 2000</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-purple-100 font-sans m-0">Tilting the World</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>A classic test of coordinate independence: <em>A particle is projected from the base of an inclined plane of angle $\theta$. The initial velocity is $u$, directed at an angle $\alpha$ relative to the horizontal. Find the time of flight until it hits the incline.</em></p>
+                        
+                        <p><strong>The "Standard Grid" Nightmare:</strong> If an untrained student insists on using the standard horizontal $x$-axis and vertical $y$-axis, they face a grueling algebra test. They must write the parabolic equation $y = x \tan\alpha - \frac{gx^2}{2u^2\cos^2\alpha}$ and find its intersection with the straight line of the incline, $y = x \tan\theta$. The resulting trigonometric mess often leads to arithmetic errors under exam pressure.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Why is the Earth's horizontal axis the "correct" one? Space is isotropic; no direction is fundamentally special. The laws of physics work exactly the same way if we simply rotate our entire coordinate system.</p>
+                        
+                        <p>Let us define a new coordinate grid: tilt our head so the $X$-axis runs directly <em>up the incline</em>, and the $Y$-axis points perpendicular to it. The initial velocity's angle relative to this new $X$-axis is simply $(\alpha - \theta)$.</p>
+                        
+                        <p>What happens to gravity? Gravity $\vec{g}$ is just a vector. In our new tilted world, it casts two shadows (components):</p>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>An acceleration <em>down</em> the incline: $g \sin\theta$</li>
+                            <li>An acceleration <em>perpendicular</em> into the incline: $g \cos\theta$</li>
+                        </ul>
+                        
+                        <p>Now, the problem has vanished into elementary mechanics. The time of flight $T$ is governed entirely by the perpendicular $Y$-axis motion. The particle goes "up" (away from the incline) with $u_y = u \sin(\alpha - \theta)$, and is pulled "down" (back to the incline) by $a_y = g \cos\theta$.</p>
+                        
+                        <p>Using the basic invariant kinematic equation $T = \frac{2u_y}{a_y}$:</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-purple-400 !m-4">
+                            $$T = \frac{2u \sin(\alpha - \theta)}{g \cos\theta}$$
+                        </div>
+                        
+                        <p>By treating coordinates not as rigid realities, but as flexible tools that can be rotated to match the symmetry of the problem, a multi-step algebraic intersection becomes a one-line read-off.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INTERLUDE B -->
+            <section id="int-b" class="mb-24 px-8 py-10 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl shadow-sm not-prose transition-colors">
+                <h2 class="text-amber-700 dark:text-amber-500 font-semibold text-xs mb-3 font-sans tracking-[0.25em] uppercase">Interlude B</h2>
+                <h1 class="text-3xl font-bold font-sans mb-6 text-amber-950 dark:text-amber-100">The Compass and the Question of Direction</h1>
+                <div class="font-serif leading-relaxed space-y-4 text-amber-900 dark:text-amber-200/80">
+                    <p>A thoughtful student often raises an objection here: <em>"If no direction in space is fundamentally special, why does a compass always point North?"</em></p>
+                    <p>This reveals a crucial distinction in physics between the <strong>Laws of Nature</strong> and <strong>Local Environmental Conditions</strong>. The laws of magnetism themselves do not prefer North. If you perform an experiment with magnets in deep space, they will align with each other, but not in any absolute "North" direction.</p>
+                    <p>The compass points North on Earth because it is immersed in a massive local magnetic field generated by our planet's molten core. The asymmetry belongs to the Earth, not to the underlying laws of physics. Recognizing the difference between a fundamental law and a local circumstance is essential for understanding invariance.</p>
+                </div>
+            </section>
+
+            <!-- CHAPTER 4 -->
+            <section id="ch4" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 4</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">Why Vectors Were Needed</h1>
+                
+                <h3>The Limitation of Ordinary Numbers</h3>
+                <p class="line-break">Suppose a student says: "I travelled 10 kilometres." This statement is incomplete. We naturally ask: In which direction?</p>
+                <p class="line-break">Distance alone does not fully describe the motion. A force of 10 newtons toward the east is not the same as a force of 10 newtons toward the west. Magnitude alone is insufficient. Direction matters.</p>
+
+                <h3>More Than an Arrow</h3>
+                <p class="line-break">Students often hear the statement: <em>A vector is an arrow.</em> This description is useful but incomplete. An arrow drawn on paper is merely a picture. The real significance of a vector lies deeper.</p>
+                <blockquote class="border-l-4 border-indigo-500 dark:border-indigo-400 text-xl font-medium text-slate-800 dark:text-slate-200">A vector represents something that remains meaningful even when coordinates change.</blockquote>
+
+                <h3>Vector Addition: A Geometric Reality</h3>
+                <p class="line-break">Consider adding two vectors, $\vec{A}$ and $\vec{B}$, to get a resultant vector $\vec{C}$. Mathematically, we write:</p>
+                <div class="math-highlight text-center text-2xl shadow-sm">$$\vec{C} = \vec{A} + \vec{B}$$</div>
+                <p class="line-break">When we break this down into coordinates, we are merely mapping this geometric truth onto a grid:</p>
+                <p class="text-center text-lg my-4">$$C_x = A_x + B_x \quad \text{and} \quad C_y = A_y + B_y$$</p>
+                <p class="line-break">If we rotate the grid, $A_x, B_x, C_x, A_y, B_y$, and $C_y$ all change their values drastically. Yet, the physical triangle formed by the three vectors remains completely undisturbed. The equation $\vec{C} = \vec{A} + \vec{B}$ is a statement about geometry, not about the grid.</p>
+
+                <!-- SIMULATION 4 -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            Interactive: The Invariance of Vector Addition
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Drag the tips of Vector A (blue) and Vector B (red). Observe the resultant Vector C (purple). Use the slider to rotate the coordinate grid. Notice how the shape of the physical triangle never changes.</p>
+                    </div>
+                    <canvas id="sim4-canvas" width="600" height="400"></canvas>
+                    <div class="sim-panel flex justify-center bg-slate-50 dark:bg-slate-900/80">
+                        <div class="flex items-center gap-4 w-full max-w-md">
+                            <label class="font-semibold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Rotate Grid:</label>
+                            <input type="range" id="sim4-slider" min="0" max="360" value="0" class="flex-1 accent-indigo-600">
+                            <span id="sim4-angle-display" class="w-12 text-right font-mono font-bold text-slate-700 dark:text-slate-300">0°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX 1 -->
+                <div class="bg-indigo-50/50 dark:bg-indigo-950/20 border-l-4 border-indigo-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-indigo-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced Perspective</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-indigo-100 font-sans m-0">The Power of Frame Translation</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>Consider a classic, notoriously tedious mechanics problem: <em>Two projectiles are fired simultaneously from the ground. Projectile A is fired from the origin with velocity $\vec{v}_A$. Projectile B is fired from a distance $D$ on the x-axis with velocity $\vec{v}_B$. Find the minimum distance between them during their flight.</em></p>
+                        
+                        <p><strong>The "Ground Frame" Nightmare:</strong> If we desperately cling to the fixed coordinates of the Earth, we must write down two separate sets of messy parabolic equations. $y_A(t) = v_{Ay}t - \frac{1}{2}gt^2$, $x_B(t) = D + v_{Bx}t$, and so on. We then construct a massive distance formula $S(t) = \sqrt{(x_B - x_A)^2 + (y_B - y_A)^2}$, take its derivative with respect to time, set it to zero, and pray we don't make an algebra mistake.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Why are we letting the Earth's arbitrary coordinate system dictate our math? The physical reality—the minimum distance between the two particles—is a geometric absolute. It <em>must</em> survive a translation of our observer frame.</p>
+                        
+                        <p>Let us shift our observer origin and attach it directly to Projectile A. We are now in the <em>relative frame</em> of A. In this frame, Projectile A is completely stationary at the origin. What is Projectile B doing?</p>
+                        
+                        <p>The relative acceleration is mathematically identical to zero because gravity acts identically on both:</p>
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-indigo-400 !m-4">
+                            $$ \vec{a}_{rel} = \vec{a}_B - \vec{a}_A = (-\vec{g}) - (-\vec{g}) = 0 $$
+                        </div>
+                        
+                        <p>Because relative acceleration is zero, the path of Projectile B, as seen by A, is not a messy parabola. <strong>It is a perfect, continuous straight line.</strong> The relative velocity is simply a constant vector: $\vec{v}_{rel} = \vec{v}_B - \vec{v}_A$.</p>
+                        
+                        <p>The complicated calculus problem has instantly evaporated into simple middle-school geometry. The minimum distance is just the length of the perpendicular dropped from the origin (where A sits) onto the straight-line path of B. By trusting that physics does not depend on the observer's frame, we transformed an algebraic nightmare into a one-line geometric truth.</p>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX 1.5 (NEW) -->
+                <div class="bg-violet-50/50 dark:bg-violet-950/20 border-l-4 border-violet-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-violet-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced Perspective</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-violet-100 font-sans m-0">The Symmetry of Relative Approach</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>Another beloved, highly intimidating problem: <em>Three particles A, B, and C are situated at the vertices of an equilateral triangle of side $L$. Each particle moves with a constant speed $v$. Particle A always aims directly at B, B aims at C, and C aims at A. When will they meet?</em></p>
+                        
+                        <p><strong>The "Ground Frame" Nightmare:</strong> If we attempt to solve this using standard $x-y$ coordinates, we must write coupled differential equations. Because the particles are always changing direction to aim at each other, their $x(t)$ and $y(t)$ coordinates describe complex logarithmic spirals curving inward. Solving these differential equations analytically under exam pressure is nearly impossible.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Instead of tracking coordinates on a grid, let us look at the <em>invariant geometric relationships</em> between the vectors. Due to perfect rotational symmetry, the triangle they form shrinks but always remains perfectly equilateral.</p>
+                        
+                        <p>Let us define an invariant physical reality: the straight line connecting particle A to particle B. We only care about the <em>relative velocity of approach</em> along this specific geometric line.</p>
+                        
+                        <p>Particle A is moving directly along this line towards B with speed $v$. <br>
+                        Particle B is moving away, but it is aiming at C. Because the triangle is equilateral, B's velocity vector points at exactly a $60^\circ$ angle away from the line AB.</p>
+                        
+                        <p>Using the dot product (geometric projection), the component of B's velocity parallel to the line AB is $v \cos(60^\circ) = v/2$. Therefore, the total speed at which the gap between A and B is closing is:</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-violet-400 !m-4">
+                            $$T = \frac{L}{\frac{3v}{2}} = \frac{2L}{3v}$$
+                        </div>
+                        
+                        <p>By abandoning the rigid Cartesian grid and focusing entirely on the geometric vector of approach, the logarithmic spiral nightmare vanishes into simple arithmetic.</p>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX: CHAPTER 4 -->
+                <div class="bg-sky-50/50 dark:bg-sky-950/20 border-l-4 border-sky-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-sky-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced 2019 (Concept)</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-sky-100 font-sans m-0">The Geometry of the River</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>The river-boat problem is a staple of advanced physics exams: <em>A river of width $D$ flows with velocity $\vec{v}_r$. A swimmer, who can swim with velocity $\vec{v}_s$ in still water, wants to cross the river. If $v_s > v_r$, at what angle should he swim to cross by the shortest possible path (zero drift)?</em></p>
+                        
+                        <p><strong>The Coordinate Nightmare:</strong> We could set up $x$ and $y$ equations. $v_x = v_s \cos\theta - v_r = 0$ (for zero drift). $v_y = v_s \sin\theta$. Then $t = D / (v_s \sin\theta)$. This is fine, but it relies on algebra and blind symbol manipulation.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Let's look at the pure geometry. The physical reality of the swimmer's net movement is the vector addition of his own effort and the river's flow:</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-sky-400 !m-4">
+                            $$\vec{v}_{net} = \vec{v}_s + \vec{v}_r$$
+                        </div>
+                        
+                        <p>To cross by the shortest path, the final physical arrow $\vec{v}_{net}$ <strong>must point straight across the river</strong>. This means the three vectors—$\vec{v}_s$ (hypotenuse), $\vec{v}_r$ (horizontal leg), and $\vec{v}_{net}$ (vertical leg)—form a perfect right-angled triangle in space.</p>
+                        
+                        <p>Because it is a right triangle, the angle $\alpha$ the swimmer must make with the perpendicular to fight the river is immediately visible via basic trigonometry:</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-sky-400 !m-4">
+                            $$\sin\alpha = \frac{v_r}{v_s}$$
+                        </div>
+                        
+                        <p>No coordinates were drawn. No $x$ or $y$ axes were invoked. By visualizing the vectors directly as arrows forming an invariant triangle, the solution drops out of the geometry.</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- CHAPTER 5 -->
+            <section id="ch5" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 5</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">Symmetry and Conservation</h1>
+                
+                <h3>The Mystery of Momentum</h3>
+                <p class="line-break">Consider a puck gliding on smooth ice. It continues moving. Its momentum remains constant. Why should momentum be conserved?</p>
+                <p class="line-break">Imagine a strange universe. Suppose the laws of motion were slightly different in different locations. Perhaps a particle moving in one region experiences a mysterious push. Elsewhere it does not. Then a moving object could gain or lose momentum merely by entering a different location. Momentum would no longer be conserved. The conservation would fail because space itself would not be uniform.</p>
+                
+                <h3>The Invariance of Total Momentum</h3>
+                <p class="line-break">If space is uniform and directions are equal, the total momentum of a closed system is conserved. If two masses collide, the sum of their initial momentums equals the sum of their final momentums:</p>
+                <div class="math-highlight text-center text-xl shadow-sm">$$\sum \vec{p}_{initial} = \sum \vec{p}_{final}$$</div>
+                <p class="line-break">Notice the arrows above the velocities. Because momentum is a vector, the <em>total</em> momentum represents a physical arrow in space. When two objects collide, their individual momentum vectors drastically change direction and size. But if you place them tail-to-tip, the resulting total vector remains frozen in space—completely independent of the collision, and completely independent of any coordinate system an observer decides to use.</p>
+
+                <!-- SIMULATION 5 -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+                            Interactive: Observer-Independent Conservation
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Watch the two particles collide. Their individual momentums ($\vec{p}_1$ and $\vec{p}_2$) change drastically upon impact. However, the Total Momentum vector in the top right remains absolutely constant. Rotate your "Observer Frame" to see that the conservation law holds regardless of how you view it.</p>
+                    </div>
+                    <canvas id="sim5-canvas" width="600" height="350"></canvas>
+                    <div class="sim-panel flex justify-center bg-slate-50 dark:bg-slate-900/80">
+                        <div class="flex items-center gap-4 w-full max-w-md">
+                            <label class="font-semibold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Observer Frame:</label>
+                            <input type="range" id="sim5-slider" min="0" max="360" value="0" class="flex-1 accent-rose-600">
+                            <span id="sim5-angle-display" class="w-12 text-right font-mono font-bold text-slate-700 dark:text-slate-300">0°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black text-white rounded-2xl p-8 my-12 shadow-xl not-prose font-sans border border-slate-700 dark:border-slate-800">
+                    <h4 class="font-bold text-xl mb-6 text-slate-100 border-b border-slate-700 pb-2">The Grand Pattern of Physics</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-slate-800/50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-700 shadow-inner">
+                            <div class="font-bold text-blue-300 text-lg">Uniformity of Space</div>
+                            <div class="text-sm text-slate-400 mt-1">No location is special.</div>
+                            <div class="flex justify-center text-slate-500 my-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </div>
+                            <div class="text-sm font-semibold text-slate-300 text-center">Translation Symmetry</div>
+                            <div class="flex justify-center text-slate-500 my-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </div>
+                            <div class="font-bold text-emerald-400 text-center text-lg">Conservation of Momentum</div>
+                        </div>
+                        <div class="bg-slate-800/50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-700 shadow-inner">
+                            <div class="font-bold text-blue-300 text-lg">Equality of Directions</div>
+                            <div class="text-sm text-slate-400 mt-1">No direction is special.</div>
+                            <div class="flex justify-center text-slate-500 my-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </div>
+                            <div class="text-sm font-semibold text-slate-300 text-center">Rotational Symmetry</div>
+                            <div class="flex justify-center text-slate-500 my-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </div>
+                            <div class="font-bold text-emerald-400 text-center text-lg">Conservation of Angular Momentum</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX 2 -->
+                <div class="bg-rose-50/50 dark:bg-rose-950/20 border-l-4 border-rose-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-rose-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced Perspective</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-rose-100 font-sans m-0">The Symmetry of the Center of Mass</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>Consider another legendary problem: <em>Block 1 (mass $m_1$) moving with velocity $v_0$ strikes Block 2 (mass $m_2$), which is initially at rest and attached to a massless spring of constant $k$. Find the maximum extension of the spring.</em></p>
+                        
+                        <p><strong>The "Ground Frame" Nightmare:</strong> From the perspective of the ground, everything is moving. Both blocks are accelerating at different, non-constant rates. If you use work-energy theorem here, you must first calculate the velocity of the center of mass, $v_{cm} = \frac{m_1 v_0}{m_1 + m_2}$, and then set up a complicated energy equation involving three distinct kinetic terms: $\frac{1}{2}m_1 v_0^2 = \frac{1}{2}(m_1+m_2)v_{cm}^2 + \frac{1}{2}kx_{max}^2$. The algebra is prone to errors.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Because space is uniform, the total momentum of this system must be conserved. This profound symmetry gives birth to a special geometric point: the Center of Mass (COM), which moves forward uniformly, completely oblivious to the chaotic vibrations of the spring.</p>
+                        
+                        <p>Instead of watching the system from the stationary ground, let us translate our observer frame and "ride" directly on the Center of Mass. We are now in the C-frame.</p>
+                        
+                        <p>In this symmetric frame, something magical happens: <strong>The total momentum of the system is exactly zero.</strong> Because the total momentum is zero, the maximum extension of the spring occurs precisely when <em>both blocks come to a complete stop</em> in this frame. All of the system's available kinetic energy instantly converts into the potential energy of the spring.</p>
+                        
+                        <p>The kinetic energy available to be converted in the C-frame is determined entirely by the relative velocity ($v_{rel} = v_0 - 0 = v_0$) and the "reduced mass" ($\mu = \frac{m_1 m_2}{m_1 + m_2}$). The law writes itself:</p>
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-rose-400 !m-4">
+                            $$\frac{1}{2}\mu v_{rel}^2 = \frac{1}{2}kx_{max}^2 \implies x_{max} = v_0 \sqrt{\frac{\mu}{k}}$$
+                        </div>
+                        <p>By choosing a frame of reference that intrinsically respects the fundamental symmetry of space, the physical reality (the maximum stretching of the spring) falls out of the equation instantly. We did not just solve an algebra problem; we exploited the geometry of the universe.</p>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX: CHAPTER 5 -->
+                <div class="bg-pink-50/50 dark:bg-pink-950/20 border-l-4 border-pink-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-pink-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">IIT JEE 2011</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-pink-100 font-sans m-0">The Invariant Center</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>Exams frequently try to overwhelm students with visual complexity: <em>Two particles of masses $m_1$ and $m_2$ are projected from the ground simultaneously with different velocities $\vec{u}_1$ and $\vec{u}_2$ in different directions. What is the trajectory of their Center of Mass (COM)?</em></p>
+                        
+                        <p><strong>The "Ground Frame" Nightmare:</strong> A student might try to write out $x_1(t), y_1(t)$ for the first particle, and $x_2(t), y_2(t)$ for the second. Then, they plug these into the massive COM formulas: $X_{com} = \frac{m_1x_1 + m_2x_2}{m_1+m_2}$ and $Y_{com} = \frac{m_1y_1 + m_2y_2}{m_1+m_2}$. Finally, they try to eliminate the time variable $t$ to find the shape of the path. This approach is brutal.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Ignore the individual particles. Treat the system as a whole. According to the laws of physics, the acceleration of the Center of Mass is strictly dictated by the <em>net external force</em> on the system.</p>
+                        
+                        <p>What are the external forces? Gravity on $m_1$ and gravity on $m_2$. Both act straight down.</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-pink-400 !m-4">
+                            $$\vec{a}_{com} = \frac{\sum \vec{F}_{ext}}{M_{tot}} = \frac{m_1\vec{g} + m_2\vec{g}}{m_1 + m_2} = \vec{g}$$
+                        </div>
+                        
+                        <p>This is a stunning realization. The acceleration of the Center of Mass is exactly $\vec{g}$. It is completely independent of $m_1$, $m_2$, $\vec{u}_1$, or $\vec{u}_2$.</p>
+                        
+                        <p>Therefore, the Center of Mass behaves identically to a single point particle in free fall. Regardless of the chaotic, expanding web of paths traced by the individual particles, <strong>the trajectory of the COM is simply a perfect parabola</strong> (or a straight vertical line if projected straight up). The underlying conservation laws impose severe geometric simplicity on otherwise chaotic systems.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHAPTER 6 -->
+            <section id="ch6" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 6</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">Beyond Coordinates</h1>
+                
+                <h3>Combining Vectors to Find the Invariant</h3>
+                <p class="line-break">Physicists developed mathematical operations to extract invariant physical realities from vector shadows. Consider the concept of Work, where a Force ($\vec{F}$) is applied over a Displacement ($\vec{d}$). The mathematical operation is the <strong>Dot Product</strong>:</p>
+                <div class="math-highlight text-center text-xl shadow-sm">$$W = \vec{F} \cdot \vec{d}$$</div>
+                <p class="line-break">In terms of coordinates, this looks like:</p>
+                <p class="text-center text-lg my-4">$$W = F_x d_x + F_y d_y$$</p>
+                <p class="line-break">This equation is profoundly beautiful. If you rotate your coordinate system by an angle $\theta$, the values of the components change entirely to new values: $F_{x'}, d_{x'}, F_{y'}, d_{y'}$. Let us look at the mathematics of this rotation:</p>
+                
+                <div class="overflow-x-auto my-6 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm transition-colors">
+                    <p class="text-center text-base my-2">$$F_{x'} = F_x \cos\theta + F_y \sin\theta$$</p>
+                    <p class="text-center text-base my-2">$$F_{y'} = -F_x \sin\theta + F_y \cos\theta$$</p>
+                </div>
+                
+                <p class="line-break mt-4">The exact same transformation happens to the displacement vector $\vec{d}$. If we calculate the Work in this new, rotated coordinate system, we multiply the new components:</p>
+                
+                <div class="math-highlight text-sm md:text-base overflow-x-auto shadow-sm">
+                    \begin{align*}
+                    W' &= F_{x'} d_{x'} + F_{y'} d_{y'} \\
+                       &= (F_x \cos\theta + F_y \sin\theta)(d_x \cos\theta + d_y \sin\theta) \\
+                       &\quad + (-F_x \sin\theta + F_y \cos\theta)(-d_x \sin\theta + d_y \cos\theta)
+                    \end{align*}
+                </div>
+                
+                <p class="line-break">When you multiply these terms out, an incredible cancellation occurs. The cross-terms (like $F_x d_y \sin\theta \cos\theta$) have opposite signs and perfectly annihilate each other. We are left with:</p>
+                
+                <p class="text-center text-lg my-4">$$W' = (F_x d_x + F_y d_y)(\cos^2\theta + \sin^2\theta)$$</p>
+                
+                <p class="line-break">And since $\cos^2\theta + \sin^2\theta = 1$ in trigonometry, we arrive at the final truth:</p>
+                
+                <div class="math-highlight text-center text-2xl font-bold !border-amber-500 !bg-amber-50 dark:!bg-amber-900/20 shadow-sm text-amber-900 dark:text-amber-100">$$W' = W = F_x d_x + F_y d_y$$</div>
+
+                <p class="line-break">The energy expended to push an object is a physical reality. It cannot depend on how a mathematician chooses to tilt their head. The dot product is the exact tool that takes two coordinate-dependent "shadows" and perfectly extracts the solid, invariant reality behind them.</p>
+
+                <!-- SIMULATION 6 -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            Interactive: The Mathematical Invariance of the Dot Product
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Watch how the calculated Work ($F_x d_x + F_y d_y$) remains perfectly constant even as the individual components fluctuate wildly during rotation.</p>
+                    </div>
+                    <canvas id="sim6-canvas" width="600" height="350"></canvas>
+                    <div class="sim-panel flex flex-col items-center gap-4 bg-slate-50 dark:bg-slate-900/80">
+                        <div class="flex items-center gap-4 w-full max-w-md">
+                            <label class="font-semibold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Rotate Axes:</label>
+                            <input type="range" id="sim6-slider" min="0" max="360" value="0" class="flex-1 accent-amber-500">
+                            <span id="sim6-angle-display" class="w-12 text-right font-mono font-bold text-slate-700 dark:text-slate-300">0°</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full text-center font-mono text-sm bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner transition-colors">
+                            <div class="text-red-600 dark:text-red-400">Fx: <span id="s6-fx">0</span>, Fy: <span id="s6-fy">0</span></div>
+                            <div class="text-blue-600 dark:text-blue-400">dx: <span id="s6-dx">0</span>, dy: <span id="s6-dy">0</span></div>
+                            <div class="col-span-2 md:col-span-1 bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 font-bold px-2 py-1 rounded transition-colors">Work: <span id="s6-work">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX: CHAPTER 6 -->
+                <div class="bg-orange-50/50 dark:bg-orange-950/20 border-l-4 border-orange-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-orange-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">IIT JEE 2003</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-orange-100 font-sans m-0">The Zero-Work Geometry</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>Vectors allow us to answer complex physical questions instantly by examining their geometric structure. <em>A charged particle $q$ moves with velocity $\vec{v}$ through a uniform magnetic field $\vec{B}$. The magnetic force is given by the Lorentz equation: $\vec{F} = q(\vec{v} \times \vec{B})$. What is the total work done by the magnetic field on the particle over time $t$?</em></p>
+                        
+                        <p><strong>The "Coordinate Calculus" Nightmare:</strong> The particle will execute a complex helical spiral through 3D space. You would need to write the equations for $x(t), y(t), z(t)$, find the force components $F_x, F_y, F_z$ at every point, and evaluate a brutal line integral: $W = \int (F_x dx + F_y dy + F_z dz)$.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> Look at the fundamental definition of the mathematical operators.</p>
+                        
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>The Physics:</strong> Instantaneous Power (rate of work done) is the Dot Product of Force and Velocity: $P = \vec{F} \cdot \vec{v}$.</li>
+                            <li><strong>The Geometry:</strong> The Cross Product ($\vec{v} \times \vec{B}$) mathematically produces a new vector that is absolutely, perfectly <em>perpendicular</em> to both original vectors ($\vec{v}$ and $\vec{B}$).</li>
+                        </ul>
+                        
+                        <p>Therefore, the magnetic force $\vec{F}$ is always perpendicular to the velocity $\vec{v}$. What is the Dot Product of two perpendicular vectors? Zero.</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-orange-400 !m-4">
+                            $$P = \vec{F} \cdot \vec{v} = [q(\vec{v} \times \vec{B})] \cdot \vec{v} = 0$$
+                        </div>
+                        
+                        <p>Because the power is zero at every single instant, the total work done is zero. The particle's kinetic energy is a strict, unchanging invariant. By combining the physical meaning of the dot product (work) with the geometric meaning of the cross product (perpendicularity), a multi-variable calculus problem is solved with zero calculations.</p>
+                    </div>
+                </div>
+
+                <h3>Another Invariant: The Area of Reality</h3>
+                <p class="line-break">If the Dot Product extracts a singular number (like energy), what happens if we want to extract a geometric shape? Consider two vectors, $\vec{A}$ and $\vec{B}$, originating from the same point. Together, they define a flat parallelogram in space. The physical <em>area</em> of that parallelogram is a reality—it exists independently of any grid lines we draw beneath it.</p>
+                <p class="line-break">The mathematical tool designed to extract this invariant area is the magnitude of the <strong>Cross Product</strong>:</p>
+                <div class="math-highlight text-center text-xl shadow-sm">$$\text{Area} = |\vec{A} \times \vec{B}| = A_x B_y - A_y B_x$$</div>
+                <p class="line-break">Just like the Dot Product, if you subject $A_x, B_y, A_y, B_x$ to the trigonometric rotation matrices shown earlier, an astonishing algebraic cancellation occurs. The complicated sine and cosine terms collapse, and the value of $A_x B_y - A_y B_x$ remains absolutely identical.</p>
+
+                <!-- SIMULATION 8 (Cross Product) -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-fuchsia-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                            Interactive: The Invariant Parallelogram
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Drag the tips of Vector A and Vector B. Rotate the axes to see how the calculated Area ($A_x B_y - A_y B_x$) survives the transformation.</p>
+                    </div>
+                    <canvas id="sim8-canvas" width="600" height="350"></canvas>
+                    <div class="sim-panel flex flex-col items-center gap-4 bg-slate-50 dark:bg-slate-900/80">
+                        <div class="flex items-center gap-4 w-full max-w-md">
+                            <label class="font-semibold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Rotate Axes:</label>
+                            <input type="range" id="sim8-slider" min="0" max="360" value="0" class="flex-1 accent-fuchsia-500">
+                            <span id="sim8-angle-display" class="w-12 text-right font-mono font-bold text-slate-700 dark:text-slate-300">0°</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full text-center font-mono text-sm bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner transition-colors">
+                            <div class="text-emerald-600 dark:text-emerald-400">Ax: <span id="s8-ax">0</span>, Ay: <span id="s8-ay">0</span></div>
+                            <div class="text-purple-600 dark:text-purple-400">Bx: <span id="s8-bx">0</span>, By: <span id="s8-by">0</span></div>
+                            <div class="col-span-2 md:col-span-1 bg-fuchsia-100 dark:bg-fuchsia-900/50 text-fuchsia-900 dark:text-fuchsia-200 font-bold px-2 py-1 rounded transition-colors">Area: <span id="s8-area">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JEE ADVANCED BOX 3 (NEW) -->
+                <div class="bg-cyan-50/50 dark:bg-cyan-950/20 border-l-4 border-cyan-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="bg-cyan-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced Perspective</span>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-cyan-100 font-sans m-0">Extracting Geometry from Kinematics</h4>
+                    </div>
+                    <div class="font-serif text-slate-700 dark:text-slate-300 space-y-4">
+                        <p>A beautiful intersection of vectors and calculus appears in this classic question: <em>A particle is projected from the ground with an initial speed $u$ at an angle $\alpha$ to the horizontal. Find the radius of curvature of its trajectory at the highest point.</em></p>
+                        
+                        <p><strong>The "Coordinate Calculus" Nightmare:</strong> If you strictly follow coordinates, you must first write the equation of the trajectory: $y = x \tan\alpha - \frac{gx^2}{2u^2\cos^2\alpha}$. Then, you must plug this into the monstrous formula for the radius of curvature from formal calculus: <br>
+                        $R = \frac{[1 + (dy/dx)^2]^{3/2}}{|d^2y/dx^2|}$. <br>
+                        You calculate the first derivative, evaluate it at the peak (where it is 0), calculate the second derivative, evaluate it, and carefully resolve the fraction. It is a pure, mechanical exercise in algebra.</p>
+                        
+                        <p><strong>The Vector Philosophy Solution:</strong> What is a curve, physically? Any smooth curve is locally just a circle. The invariant geometric reality of moving in a circle is that the velocity $\vec{v}$ dictates the path, and only the <em>perpendicular component</em> of the acceleration ($\vec{a}_\perp$) is responsible for bending that path.</p>
+                        
+                        <p>The vector relationship defining a turn is always: $a_\perp = \frac{v^2}{R}$.</p>
+                        
+                        <p>Now, let us look at the highest point of the projectile's flight, completely independent of the $x-y$ coordinate axes. At the absolute peak:</p>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>The velocity vector $\vec{v}$ is purely horizontal, with magnitude $v = u \cos\alpha$.</li>
+                            <li>The acceleration vector $\vec{g}$ is purely vertical, pointing straight down.</li>
+                        </ul>
+                        
+                        <p>Because horizontal and vertical are at $90^\circ$ to each other, the <em>entirety</em> of the acceleration $\vec{g}$ is perfectly perpendicular to the velocity. Therefore, $a_\perp$ is simply $g$.</p>
+                        
+                        <p>We plug these physical realities directly into our invariant geometric relationship:</p>
+                        
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-cyan-400 !m-4">
+                            $$ g = \frac{(u \cos\alpha)^2}{R} \implies R = \frac{u^2 \cos^2\alpha}{g} $$
+                        </div>
+                        
+                        <p>No trajectory equation. No derivatives. No monstrous calculus formulas. By understanding the geometric meaning of the vectors (that perpendicular acceleration bends the path into a circle of radius $R$), we bypass the coordinates entirely and extract the radius of curvature in a single, elegant line of logic.</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- INTERLUDE C: The Computational Reality -->
+            <section id="int-c" class="mb-24 px-8 py-10 bg-teal-900 text-teal-50 border border-teal-700 rounded-2xl shadow-xl not-prose relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-teal-800/50 via-transparent to-transparent"></div>
+                <div class="relative z-10">
+                    <h2 class="text-teal-400 font-semibold text-xs mb-3 font-sans tracking-[0.25em] uppercase">Interlude C</h2>
+                    <h1 class="text-3xl font-bold font-sans mb-6 text-white">The Empirical Reality: A Pragmatic Rebellion</h1>
+                    
+                    <div class="font-serif leading-relaxed space-y-5 text-teal-100">
+                        <p>A critical thinker might raise a profound objection to the story told thus far. Throughout this book, we have glorified the abstract, invariant vector—the "perfect" geometric arrow—and diminished the coordinates as mere shifting "shadows." But is this ancient geometrical idealization truly how we do modern science?</p>
+                        
+                        <p>An alternative, fiercely pragmatic view argues exactly the opposite. This viewpoint suggests that the abstract, perfectly continuous geometry we imagine is an illusion, a leftover from an ancient obsession with formal, infallible axiomatics.</p>
+                        
+                        <p>In the real, empirical world, we never encounter perfect continuous lines or infinitely precise invariant arrows. What do we actually do when we track the orbit of a satellite or simulate the collision of particles on a computer (like the very simulations running on this page)? We do not draw abstract geometric entities in our code. We use finite arrays of discrete numbers. We perform step-by-step algorithms.</p>
+                        
+                        <p>From this pragmatic perspective, the coordinates—the $[x, y]$ floating-point numbers we actually measure, store, and compute with—are the tangible reality of our scientific method. The "perfect invariant geometric vector" is just a convenient, idealized mental fiction.</p>
+
+                        <div class="bg-teal-950/50 p-5 rounded-lg border-l-4 border-teal-500 my-6 shadow-inner">
+                            <p class="italic text-teal-200 m-0">"If we cannot measure a thing with infinite, continuous precision, why build our physical philosophy upon the myth of infinite precision?"</p>
+                        </div>
+
+                        <p>When a computer calculates a rocket's trajectory, the machine does not know about abstract geometric invariance. It only knows about numeric arrays, arithmetic, and discrete ticks of time ($dt$). If nature herself computes reality at the Planck scale, does she use continuous geometry, or discrete algorithmic steps? In this view, vectors are simply practical tools—ordered lists of numbers processed by computational rules—rather than mystical geometric entities residing in an untouchable realm.</p>
+
+                        <p>By stripping away the dogma of infallible, continuous Euclidean perfection, this view invites us to see mathematics in physics not as a set of divine, abstract truths, but as a robust, empirical, and highly practical toolset for calculating reality. The true invariant, pragmatically speaking, is not a perfect shape in an idealized space, but the reliable, repeatable outcome of a computational algorithm.</p>
+                    </div>
+
+                    <!-- SIMULATION 7: Discrete vs Continuous -->
+                    <div class="simulation-container mt-10 bg-teal-950 border-teal-700">
+                        <div class="p-5 w-full border-b border-teal-800 bg-teal-900">
+                            <h4 class="font-bold font-sans text-teal-100 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                Interactive: The Algorithmic Orbit
+                            </h4>
+                            <p class="text-sm font-sans text-teal-300 mt-1">The faint circle is the "Platonic ideal" of continuous geometry. The orange path is the actual empirical reality calculated step-by-step by a computer algorithm. Adjust the computational time-step ($dt$) to see how the discrete calculation approximates the continuous illusion.</p>
+                        </div>
+                        <canvas id="sim7-canvas" width="600" height="300" class="bg-teal-950"></canvas>
+                        <div class="sim-panel flex flex-col items-center gap-4 bg-teal-900 border-t border-teal-800">
+                            <div class="flex items-center gap-4 w-full max-w-md">
+                                <label class="font-semibold text-teal-200 text-sm uppercase tracking-wider">Time Step (dt):</label>
+                                <input type="range" id="sim7-slider" min="1" max="100" value="30" class="flex-1 accent-orange-500">
+                                <span id="sim7-dt-display" class="w-16 text-right font-mono font-bold text-orange-400">0.30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHAPTER 7 -->
+            <section id="ch7" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 7</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">The Real Lesson of Vectors</h1>
+                
+                <h3>What Is Invariance?</h3>
+                <p class="line-break">An invariant is something that remains unchanged while other things change. A person's name may change. The person remains. A city may appear on different maps. The city remains. Coordinates may change. The physical situation remains.</p>
+                <p class="line-break">Physics continually searches for invariants because they often reveal the deepest features of reality.</p>
+
+                <h3>The Scientist's Question</h3>
+                <p class="line-break">Whenever a scientist encounters a phenomenon, an important question arises:</p>
+                <blockquote class="border-l-4 border-slate-500 dark:border-slate-400 text-xl font-medium text-slate-800 dark:text-slate-200">Which features are genuine properties of nature, and which features belong merely to our description?</blockquote>
+                <p class="line-break">Is a coordinate a property of the object? No. Is a unit of measurement a property of the object? No. Is the choice of origin a property of the object? No. These belong to the observer. Physics seeks properties that belong to the phenomenon itself.</p>
+
+                <h3>A Different Way to View Physics</h3>
+                <p class="line-break">Many introductory courses present physics as a collection of equations. There is nothing wrong with this approach. Equations are essential. Yet equations alone can hide the deeper ideas.</p>
+                <p class="line-break">The perspective developed in this book suggests another viewpoint. Physics may be seen as a search for what remains unchanged beneath changing descriptions. Coordinates change. Units change. Observers change. Representations change. Yet certain structures survive.</p>
+                <p class="line-break">Those structures form the true subject matter of physics.</p>
+            </section>
+
+            <!-- CHAPTER 8 -->
+            <section id="ch8" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 8</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-10 text-slate-900 dark:text-white tracking-tight">The Hierarchy of Description (Beyond Vectors)</h1>
+                <p class="line-break drop-cap">The reader who has followed this journey may naturally wonder what comes next. Beyond vectors lie more general geometrical objects developed to describe increasingly subtle physical relationships. Among these are entities known as <strong>Tensors</strong>.</p>
+                
+                <h3>The Limitation of a Single Arrow</h3>
+                <p class="line-break">A vector answers two questions: <em>"How much?"</em> and <em>"In what direction?"</em> This is perfect for a velocity or a force. But what if the physical reality is more complex?</p>
+                <p class="line-break">Imagine pressing your hand flat against a block of jelly and pushing it sideways. You are applying a force in a specific direction (a vector). But that force is being applied <em>across a surface</em> that also has a specific orientation (another vector). To fully describe the stress inside the jelly, you must specify <em>both</em> the direction of the force and the direction of the surface it acts upon.</p>
+                <p class="line-break">A vector is not enough. You need an object that binds two directions together. You need a tensor.</p>
+
+                <div class="math-highlight text-center my-8 overflow-x-auto shadow-sm">
+                    <p class="text-sm font-sans font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-widest">The Cauchy Stress Tensor</p>
+                    $$
+                    \mathbf{\sigma} = \begin{bmatrix} 
+                    \sigma_{xx} & \tau_{xy} & \tau_{xz} \\ 
+                    \tau_{yx} & \sigma_{yy} & \tau_{yz} \\ 
+                    \tau_{zx} & \tau_{zy} & \sigma_{zz} 
+                    \end{bmatrix}
+                    $$
+                </div>
+
+                <p class="line-break">This beautiful $3 \times 3$ grid of numbers is the coordinate shadow of a rank-2 tensor. Just like vectors, if you rotate the coordinate system, all nine of these numbers will change wildly. But they will change according to strict, perfectly balanced rules, ensuring that the physical twisting and squeezing of the jelly remains completely invariant.</p>
+                
+                <hr class="border-slate-300 dark:border-slate-700 my-10">
+                
+                <h3>Products, Connections, and the Birth of Tensors</h3>
+                <p class="line-break">The scalar product (dot product) is the simplest product of two vectors. The order of multiplication does not affect the product. The vector product (cross product) is the next simplest case. Here the order of multiplication does affect the product, but only by a factor of minus one, which implies a direction reversal.</p>
+                
+                <p class="line-break">Other products of vectors are useful but more involved. For example, a tensor can be generated by multiplying each of the three components of one vector by the three components of another vector. Consider two vectors:</p>
+                
+                <p class="text-center text-lg my-4">$$ \vec{A} = (A_x, A_y, A_z) \quad \text{and} \quad \vec{B} = (B_x, B_y, B_z) $$</p>
+                
+                <p class="line-break">Multiplying every component of $\vec{A}$ by every component of $\vec{B}$ gives:</p>
+                
+                <div class="math-highlight text-center my-6 overflow-x-auto shadow-sm">
+                    $$
+                    \begin{bmatrix}
+                    A_x B_x & A_x B_y & A_x B_z \\
+                    A_y B_x & A_y B_y & A_y B_z \\
+                    A_z B_x & A_z B_y & A_z B_z
+                    \end{bmatrix}
+                    $$
+                </div>
+
+                <p class="line-break">Hence a tensor (of the second rank) has nine numbers associated with it, a vector three, and a scalar only one. Some physical quantities that can be represented by tensors are mechanical and electrical stress, moments and products of inertia, and strain. Still more complex physical quantities are possible.</p>
+
+                <h3>Demystifying the Nine Numbers</h3>
+                <p class="line-break">The idea of a tensor becomes much less mysterious if we start from the same simple viewpoint used for scalars and vectors.</p>
+                
+                <ul class="list-none space-y-4 my-6">
+                    <li class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700">
+                        <strong class="text-blue-600 dark:text-blue-400 block mb-1">A SCALAR needs only one number to describe it:</strong>
+                        Temperature at a point: $T$<br>
+                        Mass of an object: $m$
+                    </li>
+                    <li class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700">
+                        <strong class="text-emerald-600 dark:text-emerald-400 block mb-1">A VECTOR needs three numbers (in three-dimensional space):</strong>
+                        Velocity: $\vec{v} = (v_x, v_y, v_z)$<br>
+                        Force: $\vec{F} = (F_x, F_y, F_z)$
+                    </li>
+                </ul>
+
+                <p class="line-break">Now suppose a physical quantity cannot be described by just one number or even by one vector. <strong>Suppose it tells us how a quantity in one direction is related to another direction.</strong> Then we need more numbers. Let us look at a few examples where nature forces us to use this grid.</p>
+
+                <div class="space-y-8 my-10 not-prose">
+                    
+                    <!-- Example 1 -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border-l-4 border-rose-500 shadow-sm transition-colors">
+                        <h4 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-2">Example 1: Stress in a Solid</h4>
+                        <div class="text-slate-700 dark:text-slate-300 font-serif space-y-2 text-[1.05rem] leading-relaxed">
+                            <p>Imagine pressing on a rubber eraser. A force acting in the $x$-direction may produce deformation in the $x$-direction, the $y$-direction, and the $z$-direction.</p>
+                            <p>Likewise, forces in the $y$- and $z$-directions can also affect all three directions. So we need a table:</p>
+                            <div class="flex justify-center my-4 font-sans font-medium bg-white dark:bg-slate-900 p-4 rounded-lg">
+                                <table class="text-center border-separate border-spacing-x-4 border-spacing-y-2">
+                                    <tr class="text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
+                                        <th class="pb-2">Surface</th><th class="pb-2">Force in x</th><th class="pb-2">Force in y</th><th class="pb-2">Force in z</th>
+                                    </tr>
+                                    <tr><td class="text-rose-600 dark:text-rose-400 font-semibold">x-surface</td><td>$\sigma_{xx}$</td><td>$\sigma_{xy}$</td><td>$\sigma_{xz}$</td></tr>
+                                    <tr><td class="text-emerald-600 dark:text-emerald-400 font-semibold">y-surface</td><td>$\sigma_{yx}$</td><td>$\sigma_{yy}$</td><td>$\sigma_{yz}$</td></tr>
+                                    <tr><td class="text-blue-600 dark:text-blue-400 font-semibold">z-surface</td><td>$\sigma_{zx}$</td><td>$\sigma_{zy}$</td><td>$\sigma_{zz}$</td></tr>
+                                </table>
+                            </div>
+                            <p>For example, $\sigma_{xy}$ is the force along $y$ on the $x$-surface. Just describing the force on the $x$-surface already needs 3 numbers (a vector). Since there are 3 different surfaces, we need $3 \times 3 = 9$ numbers. That table is called the stress tensor. A single vector cannot store all this information.</p>
+                        </div>
+                    </div>
+
+                    <!-- SIMULATION 10: Stress Tensor -->
+                    <div class="simulation-container mt-6 mb-12 not-prose">
+                        <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                            <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                Interactive: The Stress Tensor in Action
+                            </h4>
+                            <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Adjust the components of the 2D stress tensor. $\sigma_{xx}$ and $\sigma_{yy}$ represent <strong>Normal Stress</strong> (pulling/pushing the faces), while $\sigma_{xy}$ represents <strong>Shear Stress</strong> (sliding along the faces). Notice how the combination determines the final physical deformation of the material.</p>
+                        </div>
+                        <canvas id="sim10-canvas" width="600" height="350"></canvas>
+                        <div class="sim-panel flex flex-col items-center gap-4 bg-slate-50 dark:bg-slate-900/80">
+                            <div class="flex flex-col md:flex-row w-full max-w-2xl gap-4">
+                                <div class="flex items-center gap-2 flex-1">
+                                    <label class="w-8 font-semibold text-slate-700 dark:text-slate-300 text-sm">$\sigma_{xx}$</label>
+                                    <input type="range" id="sim10-sxx" min="-1" max="1" step="0.1" value="0.5" class="flex-1 accent-rose-500">
+                                </div>
+                                <div class="flex items-center gap-2 flex-1">
+                                    <label class="w-8 font-semibold text-slate-700 dark:text-slate-300 text-sm">$\sigma_{yy}$</label>
+                                    <input type="range" id="sim10-syy" min="-1" max="1" step="0.1" value="0.2" class="flex-1 accent-emerald-500">
+                                </div>
+                                <div class="flex items-center gap-2 flex-1">
+                                    <label class="w-8 font-semibold text-slate-700 dark:text-slate-300 text-sm">$\sigma_{xy}$</label>
+                                    <input type="range" id="sim10-sxy" min="-1" max="1" step="0.1" value="0" class="flex-1 accent-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example 2 -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border-l-4 border-amber-500 shadow-sm transition-colors">
+                        <h4 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-2">Example 2: Moment of Inertia</h4>
+                        <div class="text-slate-700 dark:text-slate-300 font-serif space-y-2 text-[1.05rem] leading-relaxed">
+                            <p>In elementary mechanics we learn $L = I\omega$. For rotation about a fixed axis, $I$ is a single number. But for a general three-dimensional body, angular velocity $\vec{\omega}$ and angular momentum $\vec{L}$ need not point in the same direction.</p>
+                            <p>The relation becomes $\vec{L} = \mathbf{I} \, \vec{\omega}$, where $\mathbf{I}$ is a $3 \times 3$ tensor. The tensor tells us how rotation about one axis contributes to angular momentum about all axes.</p>
+                            <div class="flex justify-center my-4 font-sans font-medium bg-white dark:bg-slate-900 p-4 rounded-lg">
+                                <table class="text-center border-separate border-spacing-x-4 border-spacing-y-2">
+                                    <tr class="text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
+                                        <th class="pb-2"></th><th class="pb-2">$\omega_x$</th><th class="pb-2">$\omega_y$</th><th class="pb-2">$\omega_z$</th>
+                                    </tr>
+                                    <tr><td class="text-amber-600 dark:text-amber-400 font-semibold">$L_x$</td><td>$I_{xx}$</td><td>$I_{xy}$</td><td>$I_{xz}$</td></tr>
+                                    <tr><td class="text-amber-600 dark:text-amber-400 font-semibold">$L_y$</td><td>$I_{yx}$</td><td>$I_{yy}$</td><td>$I_{yz}$</td></tr>
+                                    <tr><td class="text-amber-600 dark:text-amber-400 font-semibold">$L_z$</td><td>$I_{zx}$</td><td>$I_{zy}$</td><td>$I_{zz}$</td></tr>
+                                </table>
+                            </div>
+                            <p>For example, $I_{xy}$ tells how rotation about $y$ contributes to angular momentum about $x$. For a perfectly symmetric sphere, the tensor simplifies enormously and behaves almost like a scalar. For an irregular satellite or spacecraft, the full tensor is required.</p>
+                        </div>
+                    </div>
+
+                    <!-- Example 3 -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border-l-4 border-cyan-500 shadow-sm transition-colors">
+                        <h4 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-2">Example 3: Electrical Conductivity</h4>
+                        <div class="text-slate-700 dark:text-slate-300 font-serif space-y-2 text-[1.05rem] leading-relaxed">
+                            <p>In many materials, $\vec{J} = \sigma\vec{E}$. Here $\vec{E}$ is electric field and $\vec{J}$ is current density.</p>
+                            <p>For simple materials, conductivity $\sigma$ is a scalar. But in complex crystals, applying an electric field in one direction may produce current partly in another direction. The conductivity becomes a tensor:</p>
+                            <div class="flex justify-center my-4 font-sans font-medium bg-white dark:bg-slate-900 p-4 rounded-lg">
+                                <table class="text-center border-separate border-spacing-x-4 border-spacing-y-2">
+                                    <tr class="text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-700">
+                                        <th class="pb-2">Current</th><th class="pb-2">$E_x$</th><th class="pb-2">$E_y$</th><th class="pb-2">$E_z$</th>
+                                    </tr>
+                                    <tr><td class="text-cyan-600 dark:text-cyan-400 font-semibold">$J_x$</td><td>$\sigma_{xx}$</td><td>$\sigma_{xy}$</td><td>$\sigma_{xz}$</td></tr>
+                                    <tr><td class="text-cyan-600 dark:text-cyan-400 font-semibold">$J_y$</td><td>$\sigma_{yx}$</td><td>$\sigma_{yy}$</td><td>$\sigma_{yz}$</td></tr>
+                                    <tr><td class="text-cyan-600 dark:text-cyan-400 font-semibold">$J_z$</td><td>$\sigma_{zx}$</td><td>$\sigma_{zy}$</td><td>$\sigma_{zz}$</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SIMULATION 11: Anisotropic Conductivity -->
+                    <div class="simulation-container mt-6 mb-12 not-prose">
+                        <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                            <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                Interactive: Anisotropic Electrical Conductivity
+                            </h4>
+                            <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">This crystal conducts electricity much easier along the diagonal lattice planes. Drag the <strong>Electric Field ($\vec{E}$)</strong> vector (blue). Notice that the resulting <strong>Current Density ($\vec{J}$)</strong> vector (orange) does not necessarily point in the same direction! The crystal's internal tensor mathematically "steers" the current.</p>
+                        </div>
+                        <canvas id="sim11-canvas" width="600" height="350"></canvas>
+                        <div class="sim-panel flex justify-center bg-slate-50 dark:bg-slate-900/80">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-xl text-center font-mono text-sm bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner transition-colors">
+                                <div class="text-blue-600 dark:text-blue-400">Field $\vec{E}$: [<span id="s11-ex">0.0</span>, <span id="s11-ey">0.0</span>]</div>
+                                <div class="col-span-2 md:col-span-1 bg-cyan-100 dark:bg-cyan-900/50 text-cyan-900 dark:text-cyan-200 font-bold px-2 py-1 rounded transition-colors">Angle Diff: <span id="s11-angle">0</span>°</div>
+                                <div class="text-orange-600 dark:text-orange-400">Current $\vec{J}$: [<span id="s11-jx">0.0</span>, <span id="s11-jy">0.0</span>]</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Example 4 -->
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border-l-4 border-purple-500 shadow-sm transition-colors">
+                        <h4 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-2">Example 4: Strain</h4>
+                        <div class="text-slate-700 dark:text-slate-300 font-serif space-y-2 text-[1.05rem] leading-relaxed">
+                            <p>Suppose a cube of rubber is stretched. Different dimensions may change by different amounts. Stretching along one axis may even cause contraction along another axis.</p>
+                            <p>To record all these effects, engineers use the strain tensor. A single number is not enough because deformation occurs in several directions simultaneously. (e.g. Pull $x \rightarrow$ $\epsilon_{xx}, \epsilon_{yx}, \epsilon_{zx}$).</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                        <!-- Example 5 -->
+                        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-5 rounded-xl border border-indigo-200 dark:border-indigo-800 shadow-sm transition-colors">
+                            <h4 class="font-bold text-base text-indigo-900 dark:text-indigo-200 mb-2">Example 5: A Classroom Analogy</h4>
+                            <p class="text-indigo-800 dark:text-indigo-300 font-serif text-sm">Suppose there are 3 teachers and 3 subjects. You want to record how many hours each teacher spends on each subject. A single number is insufficient. A vector is also insufficient. You need a table ($3 \times 3$). This table contains nine entries. A tensor is mathematically similar: it stores information about interactions between two sets of directions.</p>
+                        </div>
+                        
+                        <!-- Example 6 -->
+                        <div class="bg-fuchsia-50 dark:bg-fuchsia-900/30 p-5 rounded-xl border border-fuchsia-200 dark:border-fuchsia-800 shadow-sm transition-colors">
+                            <h4 class="font-bold text-base text-fuchsia-900 dark:text-fuchsia-200 mb-2">Example 6: Transportation Analogy</h4>
+                            <p class="text-fuchsia-800 dark:text-fuchsia-300 font-serif text-sm">Imagine a city with three regions: North, East, West. Suppose you record daily traffic from every region to every other region ($N \to N, N \to E$, etc). Again, nine numbers. The tensor records relationships between pairs of directions rather than values in a single direction.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <h3>The Deep Pattern: A Useful Hierarchy</h3>
+                <p class="line-break">Think of the progression as: $\text{Scalar} \rightarrow \text{Vector} \rightarrow \text{Tensor}$, or equivalently $1 \rightarrow 3 \rightarrow 9$.</p>
+                
+                <ul class="list-none space-y-4 my-8 not-prose">
+                    <li class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="text-3xl font-black text-slate-300 dark:text-slate-600 w-12 text-center">1</div>
+                        <div>
+                            <strong class="text-slate-800 dark:text-white block">A scalar answers:</strong>
+                            <em class="text-slate-600 dark:text-slate-300 font-serif">"How much?"</em> (Input: one thing $\rightarrow$ Output: one number)
+                        </div>
+                    </li>
+                    <li class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="text-3xl font-black text-slate-300 dark:text-slate-600 w-12 text-center">3</div>
+                        <div>
+                            <strong class="text-slate-800 dark:text-white block">A vector answers:</strong>
+                            <em class="text-slate-600 dark:text-slate-300 font-serif">"How much and in which direction?"</em> (Input: Direction $\rightarrow$ Output: Value)
+                        </div>
+                    </li>
+                    <li class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="text-3xl font-black text-slate-300 dark:text-slate-600 w-12 text-center">9</div>
+                        <div>
+                            <strong class="text-slate-800 dark:text-white block">A second-rank tensor answers:</strong>
+                            <em class="text-slate-600 dark:text-slate-300 font-serif">"How does something in one direction affect something in another direction?"</em> 
+                        </div>
+                    </li>
+                </ul>
+
+                <p class="line-break">This is why, from a physicist's point of view, a second-rank tensor is often nothing more mysterious than: <strong>"A machine that takes a vector with 3 components and produces another vector with 3 components."</strong></p>
+                <p class="line-break">Since every output component can depend on every input component, we need $3 \times 3 = 9$ numbers to describe the machine. This viewpoint is very close to the way engineers actually use stress tensors, strain tensors, conductivity tensors, and inertia tensors in practice. They often think of them simply as tables describing how three directional inputs produce three directional outputs.</p>
+
+                <!-- SIMULATION 9: The Tensor Machine -->
+                <div class="simulation-container not-prose">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            Interactive: The Tensor Machine
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">We visualize a 2D slice ($2 \times 2$ tensor) for simplicity. Drag the Blue Input Vector $\vec{E}$. The Red Output Vector $\vec{J}$ is calculated by the Tensor Machine. Notice that if you add "off-diagonal" terms ($T_{xy}$ or $T_{yx}$), an input pointing purely horizontally can create an output that tilts vertically! <strong>Directions become coupled.</strong></p>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row w-full bg-slate-50 dark:bg-slate-900/80">
+                        <div class="w-full md:w-1/2 p-6 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 flex flex-col justify-center gap-4 font-mono text-sm">
+                            <div class="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 font-sans text-xs">Set the Tensor Machine [T]</div>
+                            
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="w-12 text-center text-slate-500 dark:text-slate-400">T_xx</label>
+                                <input type="range" id="t-xx" min="-2" max="2" step="0.1" value="1" class="flex-1 accent-indigo-500">
+                                <span id="val-txx" class="w-8 text-right font-bold text-indigo-600 dark:text-indigo-400">1.0</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="w-12 text-center text-slate-500 dark:text-slate-400">T_xy</label>
+                                <input type="range" id="t-xy" min="-2" max="2" step="0.1" value="0" class="flex-1 accent-indigo-500">
+                                <span id="val-txy" class="w-8 text-right font-bold text-indigo-600 dark:text-indigo-400">0.0</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="w-12 text-center text-slate-500 dark:text-slate-400">T_yx</label>
+                                <input type="range" id="t-yx" min="-2" max="2" step="0.1" value="0" class="flex-1 accent-indigo-500">
+                                <span id="val-tyx" class="w-8 text-right font-bold text-indigo-600 dark:text-indigo-400">0.0</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="w-12 text-center text-slate-500 dark:text-slate-400">T_yy</label>
+                                <input type="range" id="t-yy" min="-2" max="2" step="0.1" value="1" class="flex-1 accent-indigo-500">
+                                <span id="val-tyy" class="w-8 text-right font-bold text-indigo-600 dark:text-indigo-400">1.0</span>
+                            </div>
+
+                            <div class="mt-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner flex items-center justify-center gap-4 text-center">
+                                <div class="text-rose-600 dark:text-rose-400">
+                                    <div class="font-sans text-xs uppercase mb-1">Output $\vec{J}$</div>
+                                    <div id="out-vec" class="font-bold">[0.0, 0.0]</div>
+                                </div>
+                                <div class="text-slate-400 dark:text-slate-500 text-2xl">=</div>
+                                <div class="text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded">
+                                    <div id="mat-top" class="font-bold leading-tight">[ 1.0, 0.0 ]</div>
+                                    <div id="mat-bot" class="font-bold leading-tight">[ 0.0, 1.0 ]</div>
+                                </div>
+                                <div class="text-slate-400 dark:text-slate-500 text-xl">$\times$</div>
+                                <div class="text-blue-600 dark:text-blue-400">
+                                    <div class="font-sans text-xs uppercase mb-1">Input $\vec{E}$</div>
+                                    <div id="in-vec" class="font-bold">[0.0, 0.0]</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 flex items-center justify-center bg-white dark:bg-[#0b1120] relative">
+                            <canvas id="sim9-canvas" width="300" height="300" class="w-full max-w-[300px] aspect-square"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="line-break font-bold text-slate-800 dark:text-slate-200 mt-12 text-center">In this book, however, we are concerned only with scalars and vectors.</p>
+            </section>
+
+            <!-- EPILOGUE -->
+            <section id="epilogue" class="mb-32">
+                <div class="mt-16 p-10 bg-slate-900 dark:bg-black text-slate-100 rounded-2xl font-sans text-center not-prose shadow-2xl relative overflow-hidden transition-colors">
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                    <p class="text-2xl font-light italic mb-8 leading-relaxed relative z-10 text-slate-200">
+                        "The deepest truths of nature are often those that remain unchanged when our descriptions change."
+                    </p>
+                    <div class="h-px w-32 bg-slate-600 mx-auto relative z-10"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- UI Logic and Canvas Simulations -->
+    <script>
+        // --- Dark Mode Logic ---
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
+        // Initialize Theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-toggle').checked = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // --- Navigation & Progress Bar Logic ---
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('overlay').classList.toggle('hidden');
+        }
+        function closeMenu() {
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('overlay').classList.add('hidden');
+            }
+        }
+
+        if(window.innerWidth < 768) {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+        }
+
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.sidebar-link');
+        const mainContent = document.getElementById('main-content');
+        const progressBar = document.getElementById('progress-bar');
+        
+        mainContent.addEventListener('scroll', () => {
+            // Scroll Spy
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (mainContent.scrollTop >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('sidebar-active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('sidebar-active');
+                }
+            });
+
+            // Progress Bar Calculation
+            const totalHeight = mainContent.scrollHeight - mainContent.clientHeight;
+            const progress = (mainContent.scrollTop / totalHeight) * 100;
+            progressBar.style.width = `${progress}%`;
+        });
+
+        // --- Helper for drawing arrows ---
+        function drawArrow(ctx, fromX, fromY, toX, toY, color, width=2) {
+            const headlen = 10;
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fill();
+        }
+
+        function getGridColor() {
+            return document.documentElement.classList.contains('dark') ? '#334155' : '#f1f5f9';
+        }
+        function getAxisColor() {
+            return document.documentElement.classList.contains('dark') ? '#475569' : '#94a3b8';
+        }
+
+        // --- Sim 1: The Observers Choice ---
+        const initSim1 = () => {
+            const canvas = document.getElementById('sim1-canvas');
+            const ctx = canvas.getContext('2d');
+            const tree = { x: 300, y: 200 };
+            let s1 = { x: 100, y: 300, color: '#3b82f6', dragging: false };
+            let s2 = { x: 450, y: 250, color: '#ef4444', dragging: false };
+            let isDragging = null;
+
+            const getCoords = (origin) => ({
+                x: Math.round((tree.x - origin.x) / 10),
+                y: Math.round((origin.y - tree.y) / 10)
+            });
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i=0; i<600; i+=20) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 400); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(600, i); ctx.stroke();
+                }
+
+                ctx.fillStyle = '#65a30d';
+                ctx.beginPath(); ctx.arc(tree.x, tree.y - 15, 20, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#78350f'; ctx.fillRect(tree.x - 5, tree.y, 10, 20);
+                
+                ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#fff' : '#000'; 
+                ctx.font = "14px sans-serif"; ctx.fillText("Tree", tree.x - 12, tree.y - 40);
+
+                [s1, s2].forEach(origin => {
+                    ctx.strokeStyle = origin.color; ctx.globalAlpha = 0.5; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(origin.x - 500, origin.y); ctx.lineTo(origin.x + 500, origin.y); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(origin.x, origin.y - 500); ctx.lineTo(origin.x, origin.y + 500); ctx.stroke();
+                    ctx.globalAlpha = 1.0;
+                    ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(origin.x, origin.y); ctx.lineTo(tree.x, tree.y); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.fillStyle = origin.color; ctx.beginPath(); ctx.arc(origin.x, origin.y, 8, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff'; 
+                    ctx.lineWidth = 2; ctx.stroke();
+                });
+
+                document.getElementById('s1-pos').innerText = `(${getCoords(s1).x}, ${getCoords(s1).y})`;
+                document.getElementById('s2-pos').innerText = `(${getCoords(s2).x}, ${getCoords(s2).y})`;
+            };
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const evt = e.touches ? e.touches[0] : e;
+                const scaleX = canvas.width / r.width;
+                const scaleY = canvas.height / r.height;
+                return { x: (evt.clientX - r.left)*scaleX, y: (evt.clientY - r.top)*scaleY };
+            };
+
+            const handleDown = (e) => {
+                const pos = getPos(e);
+                if (Math.hypot(pos.x - s1.x, pos.y - s1.y) < 30) isDragging = s1;
+                else if (Math.hypot(pos.x - s2.x, pos.y - s2.y) < 30) isDragging = s2;
+                if(isDragging && e.type === 'touchstart') e.preventDefault();
+            };
+            const handleMove = (e) => {
+                if (!isDragging) return;
+                const pos = getPos(e);
+                isDragging.x = pos.x; isDragging.y = pos.y;
+                render();
+                if(e.type === 'touchmove') e.preventDefault();
+            };
+            const handleUp = () => { isDragging = null; };
+
+            canvas.addEventListener('mousedown', handleDown); canvas.addEventListener('touchstart', handleDown);
+            window.addEventListener('mousemove', handleMove); window.addEventListener('touchmove', handleMove, {passive: false});
+            window.addEventListener('mouseup', handleUp); window.addEventListener('touchend', handleUp);
+            
+            // Re-render on dark mode toggle
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            
+            render();
+        };
+
+        // --- Sim 2: Puck Translation ---
+        const initSim2 = () => {
+            const canvas = document.getElementById('sim2-canvas');
+            const ctx = canvas.getContext('2d');
+            let puck = { x: 50, y: 150, vx: 2, vy: 0.5 };
+            let frame = { x: 100, y: 50, w: 200, h: 150, dragging: false };
+            let dragOffset = { x: 0, y: 0 };
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = getGridColor();
+                for(let i=0; i<600; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 300); ctx.stroke(); }
+
+                puck.x += puck.vx; puck.y += puck.vy;
+                if(puck.x > canvas.width - 10 || puck.x < 10) puck.vx *= -1;
+                if(puck.y > canvas.height - 10 || puck.y < 10) puck.vy *= -1;
+
+                const isDark = document.documentElement.classList.contains('dark');
+                ctx.fillStyle = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(148, 163, 184, 0.2)'; 
+                ctx.fillRect(frame.x, frame.y, frame.w, frame.h);
+                ctx.strokeStyle = isDark ? '#94a3b8' : '#64748b'; 
+                ctx.lineWidth = 2; ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
+                
+                ctx.beginPath(); ctx.moveTo(frame.x + 20, frame.y + frame.h - 20); ctx.lineTo(frame.x + 80, frame.y + frame.h - 20);
+                ctx.moveTo(frame.x + 20, frame.y + frame.h - 20); ctx.lineTo(frame.x + 20, frame.y + frame.h - 80); ctx.stroke();
+                
+                ctx.fillStyle = isDark ? '#cbd5e1' : '#475569'; 
+                ctx.font = '12px sans-serif'; ctx.fillText('Observer Frame (Drag me)', frame.x + 10, frame.y + 20);
+
+                ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.arc(puck.x, puck.y, 8, 0, Math.PI*2); ctx.fill();
+                requestAnimationFrame(render);
+            };
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const evt = e.touches ? e.touches[0] : e;
+                const scaleX = canvas.width / r.width;
+                const scaleY = canvas.height / r.height;
+                return { x: (evt.clientX - r.left)*scaleX, y: (evt.clientY - r.top)*scaleY };
+            };
+            const handleDown = (e) => {
+                const p = getPos(e);
+                if(p.x > frame.x && p.x < frame.x + frame.w && p.y > frame.y && p.y < frame.y + frame.h) {
+                    frame.dragging = true; dragOffset.x = p.x - frame.x; dragOffset.y = p.y - frame.y;
+                    if(e.type==='touchstart') e.preventDefault();
+                }
+            };
+            const handleMove = (e) => {
+                if(!frame.dragging) return;
+                const p = getPos(e);
+                frame.x = p.x - dragOffset.x; frame.y = p.y - dragOffset.y;
+                if(e.type==='touchmove') e.preventDefault();
+            };
+            canvas.addEventListener('mousedown', handleDown); canvas.addEventListener('touchstart', handleDown);
+            window.addEventListener('mousemove', handleMove); window.addEventListener('touchmove', handleMove, {passive: false});
+            window.addEventListener('mouseup', () => frame.dragging=false); window.addEventListener('touchend', () => frame.dragging=false);
+            render();
+        };
+
+        // --- Sim 3: Vector Rotation ---
+        const initSim3 = () => {
+            const canvas = document.getElementById('sim3-canvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('sim3-slider');
+            const origin = { x: 300, y: 200 };
+            const vectorLen = 100;
+            const physicalAngle = -Math.PI / 6; 
+            
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const axesAngleRad = slider.value * (Math.PI / 180);
+                document.getElementById('sim3-angle-display').innerText = slider.value + '°';
+
+                const isDark = document.documentElement.classList.contains('dark');
+
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                ctx.rotate(axesAngleRad);
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i = -300; i <= 300; i += 20) {
+                    ctx.beginPath(); ctx.moveTo(i, -300); ctx.lineTo(i, 300); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-300, i); ctx.lineTo(300, i); ctx.stroke();
+                }
+                ctx.strokeStyle = getAxisColor(); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-300, 0); ctx.lineTo(300, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -300); ctx.lineTo(0, 300); ctx.stroke();
+                ctx.fillStyle = isDark ? '#94a3b8' : '#64748b'; ctx.font = '14px sans-serif';
+                ctx.fillText('+X', 180, -10); ctx.fillText('+Y', 10, -180);
+                ctx.restore();
+
+                const vecEndX = origin.x + vectorLen * Math.cos(physicalAngle);
+                const vecEndY = origin.y + vectorLen * Math.sin(physicalAngle);
+                drawArrow(ctx, origin.x, origin.y, vecEndX, vecEndY, isDark ? '#f8fafc' : '#0f172a', 4);
+
+                const relativeAngle = physicalAngle - axesAngleRad;
+                const mathLen = 5.0; 
+                document.getElementById('sim3-vx').innerText = (mathLen * Math.cos(relativeAngle)).toFixed(2);
+                document.getElementById('sim3-vy').innerText = (mathLen * Math.sin(-relativeAngle)).toFixed(2);
+                
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                ctx.rotate(axesAngleRad);
+                const pxX = vectorLen * Math.cos(relativeAngle);
+                const pxY = vectorLen * Math.sin(relativeAngle);
+                
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.7)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2; // Blue
+                ctx.beginPath(); ctx.moveTo(pxX, 0); ctx.lineTo(pxX, pxY); ctx.stroke();
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)'; // Red
+                ctx.beginPath(); ctx.moveTo(0, pxY); ctx.lineTo(pxX, pxY); ctx.stroke();
+                ctx.restore();
+            };
+            
+            slider.addEventListener('input', render);
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            render();
+        };
+
+        // --- Sim 4: Vector Addition ---
+        const initSim4 = () => {
+            const canvas = document.getElementById('sim4-canvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('sim4-slider');
+            
+            const origin = { x: 300, y: 250 };
+            let tipA = { x: 150, y: 150, dragging: false, color: '#3b82f6' }; 
+            let tipB = { x: 400, y: 100, dragging: false, color: '#ef4444' };
+            
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const gridAngle = slider.value * (Math.PI / 180);
+                document.getElementById('sim4-angle-display').innerText = slider.value + '°';
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                ctx.rotate(gridAngle);
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i = -400; i <= 400; i += 25) {
+                    ctx.beginPath(); ctx.moveTo(i, -400); ctx.lineTo(i, 400); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-400, i); ctx.lineTo(400, i); ctx.stroke();
+                }
+                ctx.strokeStyle = getAxisColor(); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-400, 0); ctx.lineTo(400, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -400); ctx.lineTo(0, 400); ctx.stroke();
+                ctx.restore();
+
+                drawArrow(ctx, origin.x, origin.y, tipA.x, tipA.y, tipA.color, 3);
+                ctx.fillStyle = tipA.color; ctx.font = "bold 16px sans-serif"; ctx.fillText("A", (origin.x + tipA.x)/2 - 15, (origin.y + tipA.y)/2);
+                
+                drawArrow(ctx, tipA.x, tipA.y, tipB.x, tipB.y, tipB.color, 3);
+                ctx.fillStyle = tipB.color; ctx.fillText("B", (tipA.x + tipB.x)/2 + 10, (tipA.y + tipB.y)/2);
+
+                const cColor = isDark ? '#c084fc' : '#9333ea';
+                drawArrow(ctx, origin.x, origin.y, tipB.x, tipB.y, cColor, 4);
+                ctx.fillStyle = cColor; ctx.fillText("C", (origin.x + tipB.x)/2 + 10, (origin.y + tipB.y)/2 + 20);
+
+                [tipA, tipB].forEach(tip => {
+                    ctx.fillStyle = isDark ? '#1e293b' : '#fff'; ctx.beginPath(); ctx.arc(tip.x, tip.y, 8, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = tip.color; ctx.lineWidth = 3; ctx.stroke();
+                });
+            };
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const evt = e.touches ? e.touches[0] : e;
+                const scaleX = canvas.width / r.width;
+                const scaleY = canvas.height / r.height;
+                return { x: (evt.clientX - r.left)*scaleX, y: (evt.clientY - r.top)*scaleY };
+            };
+            const handleDown = (e) => {
+                const p = getPos(e);
+                if (Math.hypot(p.x - tipA.x, p.y - tipA.y) < 20) tipA.dragging = true;
+                else if (Math.hypot(p.x - tipB.x, p.y - tipB.y) < 20) tipB.dragging = true;
+                if((tipA.dragging || tipB.dragging) && e.type==='touchstart') e.preventDefault();
+            };
+            const handleMove = (e) => {
+                const p = getPos(e);
+                if (tipA.dragging) {
+                    const dx = p.x - tipA.x; const dy = p.y - tipA.y;
+                    tipA.x = p.x; tipA.y = p.y;
+                    tipB.x += dx; tipB.y += dy; 
+                } else if (tipB.dragging) {
+                    tipB.x = p.x; tipB.y = p.y;
+                }
+                if (tipA.dragging || tipB.dragging) { render(); if(e.type==='touchmove') e.preventDefault(); }
+            };
+            const handleUp = () => { tipA.dragging = false; tipB.dragging = false; };
+
+            canvas.addEventListener('mousedown', handleDown); canvas.addEventListener('touchstart', handleDown);
+            window.addEventListener('mousemove', handleMove); window.addEventListener('touchmove', handleMove, {passive:false});
+            window.addEventListener('mouseup', handleUp); window.addEventListener('touchend', handleUp);
+            slider.addEventListener('input', render);
+            
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            
+            render();
+        };
+
+        // --- Sim 5: Momentum Conservation ---
+        const initSim5 = () => {
+            const canvas = document.getElementById('sim5-canvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('sim5-slider');
+            
+            let p1, p2;
+            const initParticles = () => {
+                p1 = { x: 100, y: 150, vx: 2, vy: 0.5, mass: 2, color: '#3b82f6', radius: 15 };
+                p2 = { x: 500, y: 200, vx: -2, vy: -0.3, mass: 3, color: '#ef4444', radius: 20 };
+            };
+            initParticles();
+
+            const resolveCollision = (b1, b2) => {
+                const dx = b2.x - b1.x; const dy = b2.y - b1.y;
+                const distance = Math.hypot(dx, dy);
+                if (distance < b1.radius + b2.radius) {
+                    const nx = dx / distance; const ny = dy / distance;
+                    const dvx = b2.vx - b1.vx; const dvy = b2.vy - b1.vy;
+                    const velAlongNormal = dvx * nx + dvy * ny;
+                    if (velAlongNormal > 0) return; 
+                    const e = 1.0; 
+                    const j = -(1 + e) * velAlongNormal / (1/b1.mass + 1/b2.mass);
+                    const impulseX = j * nx; const impulseY = j * ny;
+                    b1.vx -= impulseX / b1.mass; b1.vy -= impulseY / b1.mass;
+                    b2.vx += impulseX / b2.mass; b2.vy += impulseY / b2.mass;
+                }
+            };
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                p1.x += p1.vx; p1.y += p1.vy;
+                p2.x += p2.vx; p2.y += p2.vy;
+                resolveCollision(p1, p2);
+
+                if(p1.x < -100 || p1.x > 700 || p2.x < -100 || p2.x > 700) {
+                    initParticles();
+                }
+
+                const obsAngle = slider.value * (Math.PI / 180);
+                document.getElementById('sim5-angle-display').innerText = slider.value + '°';
+
+                ctx.save();
+                ctx.translate(canvas.width/2, canvas.height/2);
+                ctx.rotate(obsAngle);
+                ctx.strokeStyle = isDark ? 'rgba(244, 63, 94, 0.2)' : 'rgba(244, 63, 94, 0.1)'; ctx.lineWidth = 1; 
+                for(let i = -400; i <= 400; i += 40) {
+                    ctx.beginPath(); ctx.moveTo(i, -400); ctx.lineTo(i, 400); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-400, i); ctx.lineTo(400, i); ctx.stroke();
+                }
+                ctx.strokeStyle = isDark ? 'rgba(244, 63, 94, 0.6)' : 'rgba(244, 63, 94, 0.4)'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-400, 0); ctx.lineTo(400, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -400); ctx.lineTo(0, 400); ctx.stroke();
+                ctx.restore();
+
+                [p1, p2].forEach(p => {
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2); ctx.fill();
+                    const scale = 15;
+                    const px = p.vx * p.mass * scale;
+                    const py = p.vy * p.mass * scale;
+                    drawArrow(ctx, p.x, p.y, p.x + px, p.y + py, isDark ? '#cbd5e1' : '#1e293b', 2);
+                });
+
+                const totalPx = (p1.vx * p1.mass + p2.vx * p2.mass) * 15;
+                const totalPy = (p1.vy * p1.mass + p2.vy * p2.mass) * 15;
+                const tx = 480; const ty = 50;
+
+                ctx.fillStyle = isDark ? '#1e293b' : '#f8fafc'; ctx.fillRect(tx - 30, ty - 30, 150, 100);
+                ctx.strokeStyle = isDark ? '#475569' : '#cbd5e1'; ctx.strokeRect(tx - 30, ty - 30, 150, 100);
+                ctx.fillStyle = isDark ? '#f8fafc' : '#0f172a'; ctx.font = '12px sans-serif'; ctx.fillText("Total Momentum", tx - 20, ty - 15);
+                
+                drawArrow(ctx, tx, ty+20, tx + totalPx, ty+20 + totalPy, '#10b981', 3);
+
+                requestAnimationFrame(render);
+            };
+            
+            render();
+        };
+
+        // --- Sim 6: Dot Product Invariance ---
+        const initSim6 = () => {
+            const canvas = document.getElementById('sim6-canvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('sim6-slider');
+            
+            const origin = { x: 200, y: 200 };
+            
+            const pFx = 10; const pFy = 4;
+            const pDx = 2; const pDy = 8;
+            const scale = 15; 
+            
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const thetaDeg = parseInt(slider.value);
+                const thetaRad = thetaDeg * (Math.PI / 180);
+                document.getElementById('sim6-angle-display').innerText = thetaDeg + '°';
+
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                ctx.rotate(thetaRad);
+                
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i = -300; i <= 300; i += scale) {
+                    ctx.beginPath(); ctx.moveTo(i, -300); ctx.lineTo(i, 300); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-300, i); ctx.lineTo(300, i); ctx.stroke();
+                }
+                ctx.strokeStyle = getAxisColor(); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-300, 0); ctx.lineTo(300, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -300); ctx.lineTo(0, 300); ctx.stroke();
+                ctx.restore();
+
+                drawArrow(ctx, origin.x, origin.y, origin.x + pFx*scale, origin.y - pFy*scale, '#dc2626', 3);
+                ctx.fillStyle = '#dc2626'; ctx.font = "bold 14px sans-serif"; ctx.fillText("F", origin.x + pFx*scale + 5, origin.y - pFy*scale - 5);
+                
+                drawArrow(ctx, origin.x, origin.y, origin.x + pDx*scale, origin.y - pDy*scale, '#3b82f6', 3);
+                ctx.fillStyle = '#3b82f6'; ctx.fillText("d", origin.x + pDx*scale + 5, origin.y - pDy*scale - 5);
+
+                const cos = Math.cos(-thetaRad); 
+                const sin = Math.sin(-thetaRad);
+
+                const newFx = pFx * cos - pFy * sin;
+                const newFy = pFx * sin + pFy * cos;
+                
+                const newDx = pDx * cos - pDy * sin;
+                const newDy = pDx * sin + pDy * cos;
+
+                const work = (newFx * newDx) + (newFy * newDy);
+
+                document.getElementById('s6-fx').innerText = newFx.toFixed(1);
+                document.getElementById('s6-fy').innerText = newFy.toFixed(1);
+                document.getElementById('s6-dx').innerText = newDx.toFixed(1);
+                document.getElementById('s6-dy').innerText = newDy.toFixed(1);
+                document.getElementById('s6-work').innerText = work.toFixed(1);
+            };
+            
+            slider.addEventListener('input', render); 
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            render();
+        };
+
+        // --- Sim 7: Discrete vs Continuous (Computational Reality) ---
+        const initSim7 = () => {
+            const canvas = document.getElementById('sim7-canvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('sim7-slider');
+            
+            const origin = { x: 300, y: 150 };
+            const radius = 100;
+            const velocity = 50; 
+            const G_M = velocity * velocity * radius; 
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#14b8a6'; 
+                ctx.beginPath();
+                ctx.arc(origin.x, origin.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'rgba(20, 184, 166, 0.3)'; 
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(origin.x, origin.y, radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                const steps = 1000;
+                const dt = parseInt(slider.value) / 100.0;
+                document.getElementById('sim7-dt-display').innerText = dt.toFixed(2);
+
+                let x = 0;
+                let y = -radius;
+                let vx = velocity;
+                let vy = 0;
+
+                ctx.strokeStyle = '#f97316'; 
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(origin.x + x, origin.y + y);
+
+                for(let i = 0; i < steps; i++) {
+                    const r = Math.sqrt(x*x + y*y);
+                    const ax = -G_M * x / (r*r*r);
+                    const ay = -G_M * y / (r*r*r);
+
+                    vx += ax * dt;
+                    vy += ay * dt;
+                    x += vx * dt;
+                    y += vy * dt;
+
+                    ctx.lineTo(origin.x + x, origin.y + y);
+                }
+                ctx.stroke();
+                
+                ctx.fillStyle = '#f97316';
+                ctx.beginPath();
+                ctx.arc(origin.x + x, origin.y + y, 5, 0, Math.PI*2);
+                ctx.fill();
+            };
+            
+            slider.addEventListener('input', render); render();
+        };
+
+        // --- Sim 8: Cross Product (Area Invariance) ---
+        const initSim8 = () => {
+            const canvas = document.getElementById('sim8-canvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('sim8-slider');
+            
+            const origin = { x: 200, y: 250 };
+            let tipA = { x: 120, y: 0, dragging: false, color: '#10b981' }; // Emerald
+            let tipB = { x: 60, y: 100, dragging: false, color: '#a855f7' }; // Purple
+            
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const thetaDeg = parseInt(slider.value);
+                const thetaRad = thetaDeg * (Math.PI / 180);
+                document.getElementById('sim8-angle-display').innerText = thetaDeg + '°';
+                const isDark = document.documentElement.classList.contains('dark');
+
+                // Draw rotated axes
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                ctx.rotate(thetaRad);
+                
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i = -300; i <= 400; i += 20) {
+                    ctx.beginPath(); ctx.moveTo(i, -300); ctx.lineTo(i, 400); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-300, i); ctx.lineTo(400, i); ctx.stroke();
+                }
+                ctx.strokeStyle = getAxisColor(); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-300, 0); ctx.lineTo(400, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -300); ctx.lineTo(0, 400); ctx.stroke();
+                ctx.restore();
+
+                // Parallelogram Vertices
+                const p0 = { x: origin.x, y: origin.y };
+                const pA = { x: origin.x + tipA.x, y: origin.y - tipA.y };
+                const pB = { x: origin.x + tipB.x, y: origin.y - tipB.y };
+                const pC = { x: pA.x + tipB.x, y: pA.y - tipB.y };
+
+                // Draw Parallelogram Fill
+                ctx.fillStyle = isDark ? 'rgba(217, 70, 239, 0.15)' : 'rgba(217, 70, 239, 0.1)'; // Fuchsia tint
+                ctx.beginPath();
+                ctx.moveTo(p0.x, p0.y);
+                ctx.lineTo(pA.x, pA.y);
+                ctx.lineTo(pC.x, pC.y);
+                ctx.lineTo(pB.x, pB.y);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Draw Parallelogram dashed lines
+                ctx.strokeStyle = isDark ? 'rgba(217, 70, 239, 0.4)' : 'rgba(217, 70, 239, 0.3)';
+                ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pC.x, pC.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(pB.x, pB.y); ctx.lineTo(pC.x, pC.y); ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Draw Vectors A and B
+                drawArrow(ctx, p0.x, p0.y, pA.x, pA.y, tipA.color, 3);
+                ctx.fillStyle = tipA.color; ctx.font = "bold 16px sans-serif"; ctx.fillText("A", pA.x + 10, pA.y);
+                
+                drawArrow(ctx, p0.x, p0.y, pB.x, pB.y, tipB.color, 3);
+                ctx.fillStyle = tipB.color; ctx.fillText("B", pB.x + 10, pB.y);
+
+                // Draggable handles
+                [pA, pB].forEach((p, idx) => {
+                    ctx.fillStyle = isDark ? '#1e293b' : '#fff'; ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = idx === 0 ? tipA.color : tipB.color; ctx.lineWidth = 3; ctx.stroke();
+                });
+
+                // Calculate Math
+                const scale = 20; // 20px = 1 unit
+                const Ax = tipA.x / scale; const Ay = tipA.y / scale;
+                const Bx = tipB.x / scale; const By = tipB.y / scale;
+
+                const cos = Math.cos(-thetaRad); 
+                const sin = Math.sin(-thetaRad);
+
+                const newAx = Ax * cos - Ay * sin;
+                const newAy = Ax * sin + Ay * cos;
+                const newBx = Bx * cos - By * sin;
+                const newBy = Bx * sin + By * cos;
+
+                // Cross Product Area formula
+                const area = Math.abs(newAx * newBy - newAy * newBx);
+
+                document.getElementById('s8-ax').innerText = newAx.toFixed(1);
+                document.getElementById('s8-ay').innerText = newAy.toFixed(1);
+                document.getElementById('s8-bx').innerText = newBx.toFixed(1);
+                document.getElementById('s8-by').innerText = newBy.toFixed(1);
+                document.getElementById('s8-area').innerText = area.toFixed(1);
+            };
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const evt = e.touches ? e.touches[0] : e;
+                const scaleX = canvas.width / r.width;
+                const scaleY = canvas.height / r.height;
+                return { x: (evt.clientX - r.left)*scaleX, y: (evt.clientY - r.top)*scaleY };
+            };
+            const handleDown = (e) => {
+                const p = getPos(e);
+                const pA = { x: origin.x + tipA.x, y: origin.y - tipA.y };
+                const pB = { x: origin.x + tipB.x, y: origin.y - tipB.y };
+                if (Math.hypot(p.x - pA.x, p.y - pA.y) < 20) tipA.dragging = true;
+                else if (Math.hypot(p.x - pB.x, p.y - pB.y) < 20) tipB.dragging = true;
+                if((tipA.dragging || tipB.dragging) && e.type==='touchstart') e.preventDefault();
+            };
+            const handleMove = (e) => {
+                if(!tipA.dragging && !tipB.dragging) return;
+                const p = getPos(e);
+                if (tipA.dragging) {
+                    tipA.x = p.x - origin.x; tipA.y = origin.y - p.y;
+                } else if (tipB.dragging) {
+                    tipB.x = p.x - origin.x; tipB.y = origin.y - p.y;
+                }
+                render();
+                if(e.type==='touchmove') e.preventDefault();
+            };
+            const handleUp = () => { tipA.dragging = false; tipB.dragging = false; };
+
+            canvas.addEventListener('mousedown', handleDown); canvas.addEventListener('touchstart', handleDown);
+            window.addEventListener('mousemove', handleMove); window.addEventListener('touchmove', handleMove, {passive:false});
+            window.addEventListener('mouseup', handleUp); window.addEventListener('touchend', handleUp);
+            slider.addEventListener('input', render);
+            
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            
+            render();
+        };
+
+        // --- Sim 9: The Tensor Machine ---
+        const initSim9 = () => {
+            const canvas = document.getElementById('sim9-canvas');
+            const ctx = canvas.getContext('2d');
+            const sXX = document.getElementById('t-xx');
+            const sXY = document.getElementById('t-xy');
+            const sYX = document.getElementById('t-yx');
+            const sYY = document.getElementById('t-yy');
+            
+            const origin = { x: 150, y: 150 };
+            const scale = 30; // pixels per unit
+            let inputVec = { x: 2, y: 1, dragging: false }; 
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                // Draw Grid
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i = 0; i <= 300; i += scale) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 300); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(300, i); ctx.stroke();
+                }
+                ctx.strokeStyle = getAxisColor(); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, origin.y); ctx.lineTo(300, origin.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, 300); ctx.stroke();
+                
+                // Get Tensor values
+                const Txx = parseFloat(sXX.value);
+                const Txy = parseFloat(sXY.value);
+                const Tyx = parseFloat(sYX.value);
+                const Tyy = parseFloat(sYY.value);
+
+                // Update UI Labels
+                document.getElementById('val-txx').innerText = Txx.toFixed(1);
+                document.getElementById('val-txy').innerText = Txy.toFixed(1);
+                document.getElementById('val-tyx').innerText = Tyx.toFixed(1);
+                document.getElementById('val-tyy').innerText = Tyy.toFixed(1);
+
+                document.getElementById('mat-top').innerText = `[ ${Txx.toFixed(1)}, ${Txy.toFixed(1)} ]`;
+                document.getElementById('mat-bot').innerText = `[ ${Tyx.toFixed(1)}, ${Tyy.toFixed(1)} ]`;
+
+                // Calculate Output Vector
+                const outX = Txx * inputVec.x + Txy * inputVec.y;
+                const outY = Tyx * inputVec.x + Tyy * inputVec.y;
+
+                document.getElementById('in-vec').innerText = `[${inputVec.x.toFixed(1)}, ${inputVec.y.toFixed(1)}]`;
+                document.getElementById('out-vec').innerText = `[${outX.toFixed(1)}, ${outY.toFixed(1)}]`;
+
+                // Draw Output Vector (Red/Rose)
+                drawArrow(ctx, origin.x, origin.y, origin.x + outX*scale, origin.y - outY*scale, '#f43f5e', 4);
+                
+                // Draw Input Vector (Blue)
+                const inPx = origin.x + inputVec.x*scale;
+                const inPy = origin.y - inputVec.y*scale;
+                drawArrow(ctx, origin.x, origin.y, inPx, inPy, '#3b82f6', 3);
+
+                // Draggable handle for Input
+                ctx.fillStyle = isDark ? '#1e293b' : '#fff'; 
+                ctx.beginPath(); ctx.arc(inPx, inPy, 8, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 3; ctx.stroke();
+            };
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const evt = e.touches ? e.touches[0] : e;
+                const scaleX = canvas.width / r.width;
+                const scaleY = canvas.height / r.height;
+                return { x: (evt.clientX - r.left)*scaleX, y: (evt.clientY - r.top)*scaleY };
+            };
+            const handleDown = (e) => {
+                const p = getPos(e);
+                const inPx = origin.x + inputVec.x*scale;
+                const inPy = origin.y - inputVec.y*scale;
+                if (Math.hypot(p.x - inPx, p.y - inPy) < 20) inputVec.dragging = true;
+                if(inputVec.dragging && e.type==='touchstart') e.preventDefault();
+            };
+            const handleMove = (e) => {
+                if(!inputVec.dragging) return;
+                const p = getPos(e);
+                inputVec.x = (p.x - origin.x) / scale;
+                inputVec.y = (origin.y - p.y) / scale;
+                render();
+                if(e.type==='touchmove') e.preventDefault();
+            };
+            const handleUp = () => { inputVec.dragging = false; };
+
+            canvas.addEventListener('mousedown', handleDown); canvas.addEventListener('touchstart', handleDown);
+            window.addEventListener('mousemove', handleMove); window.addEventListener('touchmove', handleMove, {passive:false});
+            window.addEventListener('mouseup', handleUp); window.addEventListener('touchend', handleUp);
+            
+            [sXX, sXY, sYX, sYY].forEach(s => s.addEventListener('input', render));
+            
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            
+            render();
+        };
+
+        // --- Sim 10: Stress Tensor ---
+        const initSim10 = () => {
+            const canvas = document.getElementById('sim10-canvas');
+            const ctx = canvas.getContext('2d');
+            const sXX = document.getElementById('sim10-sxx');
+            const sYY = document.getElementById('sim10-syy');
+            const sXY = document.getElementById('sim10-sxy');
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                const origin = { x: canvas.width / 2, y: canvas.height / 2 };
+                const size = 100;
+
+                const sigXX = parseFloat(sXX.value);
+                const sigYY = parseFloat(sYY.value);
+                const sigXY = parseFloat(sXY.value); // symmetric tensor so sigYX = sigXY
+
+                // Draw Grid
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 1;
+                for(let i = 0; i <= canvas.width; i += 25) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                }
+                for(let i = 0; i <= canvas.height; i += 25) {
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+                }
+
+                // Un-deformed square (dashed)
+                ctx.strokeStyle = isDark ? '#475569' : '#cbd5e1';
+                ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+                ctx.strokeRect(origin.x - size/2, origin.y - size/2, size, size);
+                ctx.setLineDash([]);
+
+                // Deformed shape vertices
+                // displacement u = (sigXX*x + sigXY*y)*scale
+                const dScale = 0.3; 
+                const getDeformed = (x, y) => ({
+                    x: origin.x + x + (sigXX * x + sigXY * y) * dScale,
+                    y: origin.y - y - (sigXY * x + sigYY * y) * dScale // -y because canvas y is inverted
+                });
+
+                const p1 = getDeformed(size/2, size/2);   // Top Right
+                const p2 = getDeformed(-size/2, size/2);  // Top Left
+                const p3 = getDeformed(-size/2, -size/2); // Bottom Left
+                const p4 = getDeformed(size/2, -size/2);  // Bottom Right
+
+                // Draw deformed square
+                ctx.fillStyle = isDark ? 'rgba(244, 63, 94, 0.15)' : 'rgba(244, 63, 94, 0.1)';
+                ctx.strokeStyle = isDark ? 'rgba(244, 63, 94, 0.8)' : 'rgba(244, 63, 94, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                // Function to draw center-anchored arrows
+                const drawForceArrow = (cx, cy, fx, fy, color) => {
+                    if (Math.abs(fx) < 0.01 && Math.abs(fy) < 0.01) return;
+                    const len = 40;
+                    drawArrow(ctx, cx, cy, cx + fx*len, cy - fy*len, color, 3);
+                };
+
+                // Normal forces (Rose for XX, Emerald for YY)
+                drawForceArrow(p1.x, (p1.y+p4.y)/2, sigXX, 0, '#e11d48'); // Right face
+                drawForceArrow(p2.x, (p2.y+p3.y)/2, -sigXX, 0, '#e11d48'); // Left face
+                drawForceArrow((p1.x+p2.x)/2, p1.y, 0, sigYY, '#10b981'); // Top face
+                drawForceArrow((p3.x+p4.x)/2, p3.y, 0, -sigYY, '#10b981'); // Bottom face
+
+                // Shear forces (Blue for XY)
+                drawForceArrow(p1.x, (p1.y+p4.y)/2, 0, sigXY, '#3b82f6'); // Right face shear
+                drawForceArrow(p2.x, (p2.y+p3.y)/2, 0, -sigXY, '#3b82f6'); // Left face shear
+                drawForceArrow((p1.x+p2.x)/2, p1.y, sigXY, 0, '#3b82f6'); // Top face shear
+                drawForceArrow((p3.x+p4.x)/2, p3.y, -sigXY, 0, '#3b82f6'); // Bottom face shear
+            };
+
+            [sXX, sYY, sXY].forEach(s => s.addEventListener('input', render));
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            render();
+        };
+
+        // --- Sim 11: Anisotropic Conductivity Tensor ---
+        const initSim11 = () => {
+            const canvas = document.getElementById('sim11-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const origin = { x: canvas.width / 2, y: canvas.height / 2 };
+            let inputE = { x: 2, y: 1, dragging: false }; 
+            const scale = 30;
+
+            // Anisotropic conductivity tensor (high along y=x)
+            // C = R * [3 0; 0 1] * R^T where R is 45 deg rotation
+            const Cxx = 2.0;
+            const Cxy = 1.0;
+            const Cyx = 1.0;
+            const Cyy = 2.0;
+
+            const render = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                // Draw Crystal Lattice Background
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                ctx.strokeStyle = isDark ? 'rgba(6, 182, 212, 0.15)' : 'rgba(6, 182, 212, 0.1)';
+                ctx.lineWidth = 4;
+                for(let i = -400; i <= 400; i += 20) {
+                    ctx.beginPath(); ctx.moveTo(-300, -300 + i); ctx.lineTo(300, 300 + i); ctx.stroke();
+                }
+                ctx.restore();
+
+                // Axes
+                ctx.strokeStyle = getGridColor(); ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, origin.y); ctx.lineTo(canvas.width, origin.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, canvas.height); ctx.stroke();
+
+                // Output Current Density J
+                const Jx = Cxx * inputE.x + Cxy * inputE.y;
+                const Jy = Cyx * inputE.x + Cyy * inputE.y;
+
+                // Draw J (Orange)
+                drawArrow(ctx, origin.x, origin.y, origin.x + Jx*scale, origin.y - Jy*scale, '#f97316', 4);
+                ctx.fillStyle = '#f97316'; ctx.font = "bold 16px sans-serif";
+                ctx.fillText("J", origin.x + Jx*scale + 10, origin.y - Jy*scale);
+
+                // Draw E (Blue)
+                const pxE = origin.x + inputE.x*scale;
+                const pyE = origin.y - inputE.y*scale;
+                drawArrow(ctx, origin.x, origin.y, pxE, pyE, '#0ea5e9', 3);
+                ctx.fillStyle = '#0ea5e9'; 
+                ctx.fillText("E", pxE + 10, pyE);
+
+                // Handle
+                ctx.fillStyle = isDark ? '#1e293b' : '#fff'; 
+                ctx.beginPath(); ctx.arc(pxE, pyE, 8, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 3; ctx.stroke();
+
+                // Update UI
+                document.getElementById('s11-ex').innerText = inputE.x.toFixed(1);
+                document.getElementById('s11-ey').innerText = inputE.y.toFixed(1);
+                document.getElementById('s11-jx').innerText = Jx.toFixed(1);
+                document.getElementById('s11-jy').innerText = Jy.toFixed(1);
+
+                // Calculate angle difference
+                const angleE = Math.atan2(inputE.y, inputE.x);
+                const angleJ = Math.atan2(Jy, Jx);
+                let diff = (Math.abs(angleJ - angleE) * 180 / Math.PI) % 360;
+                if(diff > 180) diff = 360 - diff;
+                document.getElementById('s11-angle').innerText = diff.toFixed(1);
+            };
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const evt = e.touches ? e.touches[0] : e;
+                const scaleX = canvas.width / r.width;
+                const scaleY = canvas.height / r.height;
+                return { x: (evt.clientX - r.left)*scaleX, y: (evt.clientY - r.top)*scaleY };
+            };
+            const handleDown = (e) => {
+                const p = getPos(e);
+                const pxE = origin.x + inputE.x*scale;
+                const pyE = origin.y - inputE.y*scale;
+                if (Math.hypot(p.x - pxE, p.y - pyE) < 20) inputE.dragging = true;
+                if(inputE.dragging && e.type==='touchstart') e.preventDefault();
+            };
+            const handleMove = (e) => {
+                if(!inputE.dragging) return;
+                const p = getPos(e);
+                inputE.x = (p.x - origin.x) / scale;
+                inputE.y = (origin.y - p.y) / scale;
+                render();
+                if(e.type==='touchmove') e.preventDefault();
+            };
+            const handleUp = () => { inputE.dragging = false; };
+
+            canvas.addEventListener('mousedown', handleDown); canvas.addEventListener('touchstart', handleDown);
+            window.addEventListener('mousemove', handleMove); window.addEventListener('touchmove', handleMove, {passive:false});
+            window.addEventListener('mouseup', handleUp); window.addEventListener('touchend', handleUp);
+            
+            const observer = new MutationObserver(render);
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            render();
+        };
+
+        // Initialize all when window loads
+        window.onload = () => {
+            initSim1();
+            initSim2();
+            initSim3();
+            initSim4();
+            initSim5();
+            initSim6();
+            initSim7();
+            initSim8();
+            initSim9();
+            initSim10();
+            initSim11();
+        };
+    </script>
+</body>
+</html>
