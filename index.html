@@ -208,7 +208,8 @@
             </div>
         </div>
         <nav class="flex-1 p-4 space-y-1 font-sans text-sm overflow-y-auto pb-10">
-            <a href="#ch1" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 rounded-md sidebar-link sidebar-active" onclick="closeMenu()">1. The Problem of Description</a>
+            <a href="#preface" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 rounded-md sidebar-link sidebar-active" onclick="closeMenu()">Preface: The Cosmic Illusion</a>
+            <a href="#ch1" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">1. The Problem of Description</a>
             <a href="#ch2" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">2. Changing the Origin</a>
             <a href="#int-a" class="block py-2 px-3 text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider pl-6 hover:text-slate-600 dark:hover:text-slate-300" onclick="closeMenu()">Interlude A: Galileo's Ship</a>
             <a href="#ch3" class="block py-2.5 px-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md sidebar-link" onclick="closeMenu()">3. Changing Direction</a>
@@ -238,6 +239,71 @@
         <!-- Book Content Container -->
         <div class="max-w-3xl mx-auto px-6 py-12 md:py-20 prose prose-slate dark:prose-dark prose-lg transition-colors duration-300">
             
+            <!-- PREFACE -->
+            <section id="preface" class="mb-24 drop-cap">
+                <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Preface</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold font-sans mb-12 text-slate-900 dark:text-white tracking-tight">The Copernican Illusion and the Arrow of Reality</h1>
+                
+                <p class="line-break">If you look up at a starry night, the universe appears to revolve around you. For millennia, humanity trusted this visual intuition, placing the Earth at the absolute center of the cosmos. The stars, the Sun, and the wandering planets—like Mars—were thought to trace complex, looping paths across our sky.</p>
+                <p class="line-break">Then came Nicolaus Copernicus. He proposed what is historically called a "revolution" in human thought: he removed the Earth from the center and placed the Sun there instead. In New Delhi, there is a famous road named <em>Copernicus Marg</em> honoring this monumental shift in human perspective.</p>
+                <p class="line-break">But mathematically speaking, there was no great revolution. There was only a <strong>vector translation</strong>.</p>
+                <p class="line-break">The planets did not change their physical reality. The geometry of the solar system did not suddenly reshape itself. The only thing that changed was where human beings decided to place the point $(0,0)$ on their mathematical grid.</p>
+                
+                <p class="text-center text-lg my-6">$$\vec{r}_{\text{planet, sun}} = \vec{r}_{\text{planet, earth}} + \vec{r}_{\text{earth, sun}}$$</p>
+                
+                <p class="line-break">This simple vector addition is the true mathematical identity of the Copernican Revolution. It teaches us our very first lesson in the philosophy of vectors: <strong>Complex, chaotic descriptions often arise not from nature itself, but from a poorly chosen coordinate system.</strong></p>
+
+                <!-- SIMULATION 0A: Cosmic Shift -->
+                <div class="simulation-container not-prose border-slate-800 dark:border-slate-700">
+                    <div class="p-5 bg-slate-900 w-full border-b border-slate-800 transition-colors">
+                        <h4 class="font-bold font-sans text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                            Interactive: The Cosmic Coordinate Shift
+                        </h4>
+                        <p class="text-sm font-sans text-slate-300 mt-1">Watch Mars (Red) and the Sun (Yellow) orbit. Toggle between the <strong>Earth-Centered</strong> (Ptolemaic) frame and the <strong>Sun-Centered</strong> (Copernican) frame. Notice how the chaotic looping "retrograde" motion of Mars is merely an illusion created by viewing simple circles from a moving origin.</p>
+                    </div>
+                    <canvas id="sim0a-canvas" width="600" height="400" class="bg-black"></canvas>
+                    <div class="sim-panel flex justify-center bg-slate-900 border-t border-slate-800">
+                        <button id="sim0a-btn" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-colors uppercase tracking-widest text-sm">
+                            Switch to Sun-Centered Frame
+                        </button>
+                    </div>
+                </div>
+
+                <h3>Poincaré's Pen and the Concept of 'Here'</h3>
+                <p class="line-break">If the origin of space is an illusion, what about the concept of <em>"the same place"</em>? The great mathematician Henri Poincaré posed a brilliant thought experiment. Imagine you leave a pen on your desk. You close your eyes for exactly one second. You open them, see the pen, and declare, "The pen has not moved. It is in the exact same place."</p>
+                <p class="line-break">But is it?</p>
+                <p class="line-break">In that one second, the Earth has hurtled roughly 30 kilometers along its orbit around the Sun. To an observer standing on the Sun, your pen just flew through space at unimaginable speed. So, to measure distance accurately, you suddenly find that you need the concept of <em>time</em>. The phrase "the same point in space" means nothing unless you also specify "at the same moment in time" or define your moving frame of reference.</p>
+                
+                <!-- SIMULATION 0B: Poincaré's Pen -->
+                <div class="simulation-container not-prose border-slate-300 dark:border-slate-700">
+                    <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
+                        <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Interactive: The Relativity of 'Here'
+                        </h4>
+                        <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">A pen rests on a desk for 5 seconds. In the <strong>Room Frame</strong>, it draws a single dot at $x=0$. Toggle to the <strong>Solar Frame</strong> to see the exact same 5 seconds from the perspective of the Sun.</p>
+                    </div>
+                    <canvas id="sim0b-canvas" width="600" height="200" class="bg-slate-50 dark:bg-slate-900"></canvas>
+                    <div class="sim-panel flex justify-center bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-4 w-full max-w-md">
+                            <span class="font-semibold text-slate-600 dark:text-slate-300 text-sm">Room Frame</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" id="sim0b-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-300 transform translate-x-0 checked:translate-x-6 checked:border-teal-500 border-slate-300"/>
+                                <label for="sim0b-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                            </div>
+                            <span class="font-semibold text-slate-600 dark:text-slate-300 text-sm">Solar Frame</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="line-break">This profound blurring of space, time, and observer eventually gave birth to the <strong>Lorentz Transformations</strong> and Einstein's Theory of Relativity. Relativity is, at its core, just the ultimate expression of our vector philosophy: <em>The laws of physics must remain invariant, no matter how fast your coordinate system is moving or how it is rotated.</em></p>
+                <p class="line-break">Throughout this book, we will explore this powerful idea. We will see how mathematical tools like the Dot Product and Cross Product—heavily used in physics to calculate things like magnetic force and mechanical torque—are not just arbitrary formulas. They are geometric extractors. They are designed specifically to filter out the illusions of our coordinates and reveal the absolute, unchanging reality of nature.</p>
+                <p class="line-break">Let us begin our journey with a simple tree in a field.</p>
+                
+                <hr class="border-slate-300 dark:border-slate-700 my-16">
+            </section>
+
             <!-- CHAPTER 1 -->
             <section id="ch1" class="mb-24 drop-cap">
                 <h2 class="text-slate-400 dark:text-slate-500 font-semibold text-sm mb-2 font-sans tracking-[0.2em] uppercase">Chapter 1</h2>
@@ -480,7 +546,7 @@
                     </div>
                 </div>
 
-                <!-- JEE ADVANCED BOX 1.5 (NEW) -->
+                <!-- JEE ADVANCED BOX 1.5 -->
                 <div class="bg-violet-50/50 dark:bg-violet-950/20 border-l-4 border-violet-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
                     <div class="flex items-center gap-3 mb-6">
                         <span class="bg-violet-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced Perspective</span>
@@ -752,7 +818,7 @@
                 <div class="simulation-container not-prose">
                     <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
                         <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
-                            <svg class="w-5 h-5 text-fuchsia-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                            <svg class="w-5 h-5 text-fuchsia-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             Interactive: The Invariant Parallelogram
                         </h4>
                         <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Drag the tips of Vector A and Vector B. Rotate the axes to see how the calculated Area ($A_x B_y - A_y B_x$) survives the transformation.</p>
@@ -772,7 +838,7 @@
                     </div>
                 </div>
 
-                <!-- JEE ADVANCED BOX 3 (NEW) -->
+                <!-- JEE ADVANCED BOX 3 -->
                 <div class="bg-cyan-50/50 dark:bg-cyan-950/20 border-l-4 border-cyan-500 rounded-r-xl p-8 my-16 shadow-sm not-prose transition-colors">
                     <div class="flex items-center gap-3 mb-6">
                         <span class="bg-cyan-500 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">JEE Advanced Perspective</span>
@@ -966,7 +1032,7 @@
                     <div class="simulation-container mt-6 mb-12 not-prose">
                         <div class="p-5 bg-white dark:bg-slate-800 w-full border-b border-slate-200 dark:border-slate-700 transition-colors">
                             <h4 class="font-bold font-sans text-slate-800 dark:text-white flex items-center gap-2">
-                                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                                 Interactive: The Stress Tensor in Action
                             </h4>
                             <p class="text-sm font-sans text-slate-600 dark:text-slate-400 mt-1">Adjust the components of the 2D stress tensor. $\sigma_{xx}$ and $\sigma_{yy}$ represent <strong>Normal Stress</strong> (pulling/pushing the faces), while $\sigma_{xy}$ represents <strong>Shear Stress</strong> (sliding along the faces). Notice how the combination determines the final physical deformation of the material.</p>
@@ -1272,6 +1338,194 @@
         function getAxisColor() {
             return document.documentElement.classList.contains('dark') ? '#475569' : '#94a3b8';
         }
+
+        // --- Sim 0A: Cosmic Shift (Geocentric vs Heliocentric) ---
+        const initSim0A = () => {
+            const canvas = document.getElementById('sim0a-canvas');
+            const ctx = canvas.getContext('2d');
+            const btn = document.getElementById('sim0a-btn');
+            
+            let isHelio = false;
+            let time = 0;
+            
+            // Starfield background
+            const stars = Array.from({length: 150}, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.5,
+                alpha: Math.random()
+            }));
+
+            btn.addEventListener('click', () => {
+                isHelio = !isHelio;
+                btn.innerText = isHelio ? "Switch to Earth-Centered Frame" : "Switch to Sun-Centered Frame";
+                btn.classList.toggle('bg-blue-600', !isHelio);
+                btn.classList.toggle('bg-amber-600', isHelio);
+                btn.classList.toggle('hover:bg-blue-500', !isHelio);
+                btn.classList.toggle('hover:bg-amber-500', isHelio);
+            });
+
+            const drawStars = () => {
+                stars.forEach(s => {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+                });
+            };
+
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawStars();
+                
+                time += 0.02;
+                const rE = 70;  // Earth orbit radius
+                const rM = 110; // Mars orbit radius
+                const wE = 1;   // Earth angular velocity
+                const wM = 0.53; // Mars angular velocity
+
+                const originX = canvas.width / 2;
+                const originY = canvas.height / 2;
+
+                // Absolute positions (Heliocentric)
+                const absSun = { x: 0, y: 0 };
+                const absEarth = { x: rE * Math.cos(wE * time), y: rE * Math.sin(wE * time) };
+                const absMars = { x: rM * Math.cos(wM * time), y: rM * Math.sin(wM * time) };
+
+                let drawSun, drawEarth, drawMars;
+
+                if (isHelio) {
+                    drawSun = absSun;
+                    drawEarth = absEarth;
+                    drawMars = absMars;
+                } else {
+                    drawSun = { x: -absEarth.x, y: -absEarth.y };
+                    drawEarth = { x: 0, y: 0 };
+                    drawMars = { x: absMars.x - absEarth.x, y: absMars.y - absEarth.y };
+                }
+
+                ctx.save();
+                ctx.translate(originX, originY);
+
+                // Draw Paths (Trace)
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for(let t = 0; t < Math.PI*2 / wM * 2.5; t += 0.05) {
+                    let tx, ty;
+                    if(isHelio) {
+                        tx = rM * Math.cos(wM * t); ty = rM * Math.sin(wM * t);
+                    } else {
+                        tx = rM * Math.cos(wM * t) - rE * Math.cos(wE * t);
+                        ty = rM * Math.sin(wM * t) - rE * Math.sin(wE * t);
+                    }
+                    if(t===0) ctx.moveTo(tx, ty); else ctx.lineTo(tx, ty);
+                }
+                ctx.stroke();
+
+                if(isHelio) {
+                    ctx.beginPath(); ctx.arc(0, 0, rE, 0, Math.PI*2); ctx.stroke();
+                } else {
+                    ctx.beginPath(); ctx.arc(0, 0, rE, 0, Math.PI*2); ctx.stroke();
+                }
+
+                // Vectors
+                ctx.setLineDash([3, 3]);
+                drawArrow(ctx, drawEarth.x, drawEarth.y, drawSun.x, drawSun.y, 'rgba(252, 211, 77, 0.5)', 2);
+                drawArrow(ctx, drawEarth.x, drawEarth.y, drawMars.x, drawMars.y, 'rgba(248, 113, 113, 0.5)', 2);
+                drawArrow(ctx, drawSun.x, drawSun.y, drawMars.x, drawMars.y, 'rgba(167, 139, 250, 0.5)', 2);
+                ctx.setLineDash([]);
+
+                // Bodies
+                // Sun
+                ctx.fillStyle = '#fcd34d'; ctx.beginPath(); ctx.arc(drawSun.x, drawSun.y, 12, 0, Math.PI*2); ctx.fill();
+                // Earth
+                ctx.fillStyle = '#60a5fa'; ctx.beginPath(); ctx.arc(drawEarth.x, drawEarth.y, 8, 0, Math.PI*2); ctx.fill();
+                // Mars
+                ctx.fillStyle = '#f87171'; ctx.beginPath(); ctx.arc(drawMars.x, drawMars.y, 6, 0, Math.PI*2); ctx.fill();
+
+                // Labels
+                ctx.fillStyle = 'white'; ctx.font = '12px sans-serif';
+                ctx.fillText("Sun", drawSun.x + 15, drawSun.y);
+                ctx.fillText("Earth", drawEarth.x + 10, drawEarth.y);
+                ctx.fillText("Mars", drawMars.x + 10, drawMars.y);
+
+                ctx.restore();
+                requestAnimationFrame(animate);
+            };
+            animate();
+        };
+
+        // --- Sim 0B: Poincaré's Pen (Relativity of 'Here') ---
+        const initSim0B = () => {
+            const canvas = document.getElementById('sim0b-canvas');
+            const ctx = canvas.getContext('2d');
+            const toggle = document.getElementById('sim0b-toggle');
+
+            let time = 0;
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                time += 0.05;
+                if(time > 5) time = 0; // Reset every 5 seconds
+
+                const isSolar = toggle.checked;
+                const deskW = 100;
+                const deskH = 20;
+                const velocity = 80; // pixels per second
+
+                let deskX = canvas.width/2 - deskW/2;
+                if(isSolar) deskX = 50 + velocity * time; 
+
+                const deskY = 120;
+                const penX = deskX + deskW/2;
+                const penY = deskY - 15;
+
+                // Draw Grid/Stars depending on frame
+                if(isSolar) {
+                    ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'white';
+                    for(let i=0; i<10; i++) {
+                        ctx.beginPath(); ctx.arc((i*80 - velocity*time*0.5 + 800)%800 - 100, Math.random()*200, 1, 0, Math.PI*2); ctx.fill();
+                    }
+                } else {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0'; ctx.lineWidth = 1;
+                    for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
+                }
+
+                // Draw trace
+                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                if(isSolar) {
+                    ctx.moveTo(50 + deskW/2, penY);
+                    ctx.lineTo(penX, penY);
+                } else {
+                    ctx.moveTo(penX, penY);
+                    ctx.lineTo(penX, penY+1); // Just a dot
+                }
+                ctx.stroke(); ctx.setLineDash([]);
+
+                // Draw Desk
+                ctx.fillStyle = '#8b5cf6';
+                ctx.fillRect(deskX, deskY, deskW, deskH);
+                ctx.fillRect(deskX + 10, deskY + deskH, 10, 40);
+                ctx.fillRect(deskX + deskW - 20, deskY + deskH, 10, 40);
+
+                // Draw Pen
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(penX, penY, 5, 0, Math.PI*2); ctx.fill();
+
+                // UI Text
+                ctx.fillStyle = isSolar ? '#f8fafc' : '#334155'; ctx.font = '16px monospace';
+                ctx.fillText(`Time: ${time.toFixed(1)} s`, 20, 30);
+                if(isSolar) {
+                    ctx.fillText(`Pen X-Coord: ${(velocity*time).toFixed(0)} km`, 20, 50);
+                } else {
+                    ctx.fillText(`Pen X-Coord: 0 km (Stationary)`, 20, 50);
+                }
+
+                requestAnimationFrame(animate);
+            };
+            animate();
+        };
 
         // --- Sim 1: The Observers Choice ---
         const initSim1 = () => {
@@ -1799,7 +2053,7 @@
                 // Draw Parallelogram Fill
                 ctx.fillStyle = isDark ? 'rgba(217, 70, 239, 0.15)' : 'rgba(217, 70, 239, 0.1)'; // Fuchsia tint
                 ctx.beginPath();
-                ctx.moveTo(p0.x, p0.y);
+                moveTo(p0.x, p0.y);
                 ctx.lineTo(pA.x, pA.y);
                 ctx.lineTo(pC.x, pC.y);
                 ctx.lineTo(pB.x, pB.y);
@@ -2174,6 +2428,8 @@
 
         // Initialize all when window loads
         window.onload = () => {
+            initSim0A();
+            initSim0B();
             initSim1();
             initSim2();
             initSim3();
