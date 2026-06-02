@@ -79,10 +79,10 @@
         .fig-caption::before { counter-increment: figure; content: "Figure " counter(figure) ": "; font-weight: 700; color: #4f46e5; }
         .dark .fig-caption::before { color: #818cf8; }
         
-        .eq-num { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; width: 100%; box-sizing: border-box; }
-        .eq-num > div { overflow-x: auto; overflow-y: hidden; text-align: center; display: flex; justify-content: center; align-items: center; padding-bottom: 2px; }
-        .eq-num .katex-display { margin: 0; }
-        .eq-num::after { counter-increment: equation; content: "(Eq. " counter(equation) ")"; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #64748b; font-weight: bold; white-space: nowrap; grid-column: 2; align-self: center; }
+        .eq-num { display: flex; align-items: center; gap: 1rem; width: 100%; box-sizing: border-box; }
+        .eq-num > div { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; padding-bottom: 4px; }
+        .eq-num .katex-display { margin: 0; text-align: center; }
+        .eq-num::after { counter-increment: equation; content: "(Eq. " counter(equation) ")"; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #64748b; font-weight: bold; white-space: nowrap; flex-shrink: 0; }
         .dark .eq-num::after { color: #94a3b8; }
 
         .motivating-problem { background: linear-gradient(to right, rgba(79, 70, 229, 0.05), transparent); border-left: 4px solid #4f46e5; padding: 1rem 1.5rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 2rem; font-family: 'Outfit', sans-serif; }
@@ -1231,8 +1231,8 @@
                 <h3>The Hierarchy of Data</h3>
                 <p>As physical phenomena become structurally complex, invariant models necessitate higher-order dimensional mapping.</p>
 
-                <div class="my-12 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 font-sans not-prose reveal">
-                    <table class="w-full text-left border-collapse">
+                <div class="my-12 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 font-sans not-prose reveal">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
                             <tr class="bg-indigo-50 dark:bg-indigo-900/30 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                                 <th class="p-5 font-bold text-lg">Mathematical Object</th>
