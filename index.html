@@ -64,7 +64,7 @@
 
     <!-- Custom Styles -->
     <style>
-        body { transition: background-color 0.5s ease, color 0.5s ease; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; counter-reset: figure equation; }
+        body { transition: background-color 0.5s ease, color 0.5s ease; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; counter-reset: figure; }
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; } .dark ::-webkit-scrollbar-thumb { background: #475569; }
         
@@ -78,12 +78,6 @@
         .dark .fig-caption { color: #94a3b8; border-top: 1px solid rgba(71, 85, 105, 0.4); }
         .fig-caption::before { counter-increment: figure; content: "Figure " counter(figure) ": "; font-weight: 700; color: #4f46e5; }
         .dark .fig-caption::before { color: #818cf8; }
-        
-        .eq-num { display: flex; align-items: center; gap: 1rem; width: 100%; box-sizing: border-box; }
-        .eq-num > div { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; padding-bottom: 4px; }
-        .eq-num .katex-display { margin: 0; text-align: center; }
-        .eq-num::after { counter-increment: equation; content: "(Eq. " counter(equation) ")"; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #64748b; font-weight: bold; white-space: nowrap; flex-shrink: 0; }
-        .dark .eq-num::after { color: #94a3b8; }
 
         .motivating-problem { background: linear-gradient(to right, rgba(79, 70, 229, 0.05), transparent); border-left: 4px solid #4f46e5; padding: 1rem 1.5rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 2rem; font-family: 'Outfit', sans-serif; }
         .dark .motivating-problem { background: linear-gradient(to right, rgba(129, 140, 248, 0.1), transparent); border-left: 4px solid #818cf8; }
@@ -104,7 +98,7 @@
         canvas { cursor: crosshair; max-width: 100%; height: auto; touch-action: none; display: block; -webkit-tap-highlight-color: transparent; }
         .sim-panel { width: 100%; padding: 1.25rem; font-family: 'Outfit', sans-serif; font-size: 0.875rem; z-index: 10;}
         
-        .math-highlight { background: linear-gradient(135deg, rgba(241,245,249,0.8), rgba(255,255,255,0.9)); border-left: 4px solid #4f46e5; padding: 1.5rem; margin: 2rem 0; border-radius: 0 0.75rem 0.75rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); backdrop-filter: blur(5px); }
+        .math-highlight { background: linear-gradient(135deg, rgba(241,245,249,0.8), rgba(255,255,255,0.9)); border-left: 4px solid #4f46e5; padding: 1.5rem; margin: 2rem 0; border-radius: 0 0.75rem 0.75rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); backdrop-filter: blur(5px); overflow-x: auto; }
         .dark .math-highlight { background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9)); border-left: 4px solid #818cf8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
         
         #progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); z-index: 100; width: 0%; transition: width 0.1s ease-out; }
