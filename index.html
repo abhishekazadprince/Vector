@@ -57,7 +57,7 @@
         }
     </script>
 
-    <!-- KaTeX Deferred Loading -->
+    <!-- Synchronous KaTeX Loading for 100% Stability -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
@@ -98,7 +98,7 @@
         canvas { cursor: crosshair; max-width: 100%; height: auto; touch-action: none; display: block; -webkit-tap-highlight-color: transparent; }
         .sim-panel { width: 100%; padding: 1.25rem; font-family: 'Outfit', sans-serif; font-size: 0.875rem; z-index: 10;}
         
-        .math-highlight { background: linear-gradient(135deg, rgba(241,245,249,0.8), rgba(255,255,255,0.9)); border-left: 4px solid #4f46e5; padding: 1.5rem; margin: 2rem 0; border-radius: 0 0.75rem 0.75rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); backdrop-filter: blur(5px); overflow-x: auto; }
+        .math-highlight { background: linear-gradient(135deg, rgba(241,245,249,0.8), rgba(255,255,255,0.9)); border-left: 4px solid #4f46e5; padding: 1.5rem; margin: 2rem 0; border-radius: 0 0.75rem 0.75rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); backdrop-filter: blur(5px); overflow-x: auto; overflow-y: hidden; text-align: center; }
         .dark .math-highlight { background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9)); border-left: 4px solid #818cf8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
         
         #progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); z-index: 100; width: 0%; transition: width 0.1s ease-out; }
@@ -176,7 +176,7 @@
                 <p>Mathematically speaking, there was no grand, physical alteration of the universe. There was only a <strong>vector translation</strong>.</p>
                 <p>The planets did not change their physical reality. The geometry of the solar system did not alter itself. The immense mass of Jupiter remained unaffected. The only thing that changed was where human beings decided to place the point $(0,0)$ on their mathematical grid.</p>
                 
-                <div class="math-highlight eq-num font-serif">
+                <div class="math-highlight font-serif">
                     <div>$$\vec{r}_{\text{planet, sun}} = \vec{r}_{\text{planet, earth}} + \vec{r}_{\text{earth, sun}}$$</div>
                 </div>
                 
@@ -379,19 +379,19 @@
                             <h4 class="text-indigo-300 font-sans font-bold text-xl mb-4">The Calculus of Invariance</h4>
                             <p class="text-base text-slate-300 mb-4">Suppose an observer on the shore measures a ball's position as $\vec{r}$. A sailor on a ship moving with constant velocity $\vec{v}_{ship}$ measures the ball's position as:</p>
                             
-                            <div class="eq-num font-mono text-xl text-white my-4 bg-black/40 p-3 rounded">
+                            <div class="math-highlight font-mono text-xl text-white my-4 bg-black/40 p-3 rounded">
                                 <div>$\vec{r}' = \vec{r} - \vec{v}_{ship} t$</div>
                             </div>
                             
                             <p class="text-base text-slate-300 mb-4">Taking the first time derivative yields the velocity in both frames:</p>
                             
-                            <div class="eq-num font-mono text-xl text-white my-4 bg-black/40 p-3 rounded">
+                            <div class="math-highlight font-mono text-xl text-white my-4 bg-black/40 p-3 rounded">
                                 <div>$\frac{d\vec{r}'}{dt} = \frac{d\vec{r}}{dt} - \vec{v}_{ship}$  &nbsp;&nbsp; $\implies$ &nbsp;&nbsp; $\vec{u}' = \vec{u} - \vec{v}_{ship}$</div>
                             </div>
                             
                             <p class="text-base text-slate-300 mb-4">The measured velocities differ. However, Newtonian mechanics ($\vec{F} = m\vec{a}$) is governed by acceleration—the second derivative. Differentiating again:</p>
                             
-                            <div class="eq-num font-mono text-xl text-indigo-300 my-4 bg-black/40 p-3 rounded border border-indigo-500/30">
+                            <div class="math-highlight font-mono text-xl text-indigo-300 my-4 bg-black/40 p-3 rounded border border-indigo-500/30">
                                 <div>$\frac{d\vec{u}'}{dt} = \frac{d\vec{u}}{dt} - 0$ &nbsp;&nbsp; $\implies$ &nbsp;&nbsp; $\vec{a}' = \vec{a}$</div>
                             </div>
                             
@@ -476,7 +476,7 @@
                         
                         <p>The time of flight $T$ is determined entirely by the perpendicular $Y$-axis motion. The particle's perpendicular initial velocity is $u_y = u \sin(\alpha - \theta)$, and perpendicular acceleration is $a_y = g \cos\theta$.</p>
                         
-                        <div class="math-highlight eq-num !bg-white/50 dark:!bg-slate-900/50 !border-purple-400 !m-6 text-center text-xl shadow-lg rounded-xl">
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-purple-400 !m-6 text-center text-xl shadow-lg rounded-xl">
                             <div>$$T = \frac{2u_y}{a_y} = \frac{2u \sin(\alpha - \theta)}{g \cos\theta}$$</div>
                         </div>
                         
@@ -505,9 +505,9 @@
 
                 <h3>Vector Addition: A Geometric Reality</h3>
                 <p>Consider the addition of two forces, $\vec{A}$ and $\vec{B}$, yielding resultant $\vec{C}$:</p>
-                <div class="math-highlight eq-num text-center text-2xl shadow-sm"><div>$$\vec{C} = \vec{A} + \vec{B}$$</div></div>
+                <div class="math-highlight text-center text-2xl shadow-sm"><div>$$\vec{C} = \vec{A} + \vec{B}$$</div></div>
                 <p>Resolved into Cartesian components:</p>
-                <div class="math-highlight eq-num text-center text-lg my-4 bg-transparent border-none shadow-none"><div>$$C_x = A_x + B_x \quad \text{and} \quad C_y = A_y + B_y$$</div></div>
+                <div class="math-highlight text-center text-lg my-4 bg-transparent border-none shadow-none"><div>$$C_x = A_x + B_x \quad \text{and} \quad C_y = A_y + B_y$$</div></div>
                 <p>Rotating the grid alters $A_x, B_x, C_x, A_y, B_y$, and $C_y$. However, the geometric triangle formed by the forces is invariant. The equation $\vec{C} = \vec{A} + \vec{B}$ is a geometric statement independent of coordinate choices.</p>
 
                 <!-- SIMULATION 4 -->
@@ -550,7 +550,7 @@
                 
                 <h3>The Geometric Vector</h3>
                 <p>Due to spatial symmetry, the total momentum of a closed system is conserved:</p>
-                <div class="math-highlight eq-num text-center text-xl shadow-sm"><div>$$\sum \vec{p}_{initial} = \sum \vec{p}_{final}$$</div></div>
+                <div class="math-highlight text-center text-xl shadow-sm"><div>$$\sum \vec{p}_{initial} = \sum \vec{p}_{final}$$</div></div>
                 <p>Momentum is a vector quantity. During collisions, individual momentum vectors alter direction and magnitude. However, the vector sum of these components remains invariant, independent of coordinate systems.</p>
 
                 <!-- SIMULATION 5 -->
@@ -627,7 +627,7 @@
                         
                         <p>Maximum compression occurs when both blocks possess zero velocity in this frame, converting kinetic energy fully into spring potential energy using reduced mass ($\mu = \frac{m_1 m_2}{m_1 + m_2}$):</p>
                         
-                        <div class="math-highlight eq-num !bg-white/50 dark:!bg-slate-900/50 !border-rose-400 !m-6 text-center text-xl shadow-lg rounded-xl">
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-rose-400 !m-6 text-center text-xl shadow-lg rounded-xl">
                             <div>$$\frac{1}{2}\mu v_0^2 = \frac{1}{2}kx_{max}^2$$</div>
                         </div>
                     </div>
@@ -649,7 +649,7 @@
 
                 <h3>The Scalar Product (Dot Product)</h3>
                 <p>Work is defined by Force ($\vec{F}$) applied over Displacement ($\vec{d}$) via the <strong>Dot Product</strong>:</p>
-                <div class="math-highlight eq-num text-center text-xl shadow-sm"><div>$$W = \vec{F} \cdot \vec{d} = F_x d_x + F_y d_y$$</div></div>
+                <div class="math-highlight text-center text-xl shadow-sm"><div>$$W = \vec{F} \cdot \vec{d} = F_x d_x + F_y d_y$$</div></div>
                 <p>The Dot Product isolates the parallel projection of vectors, producing a scalar independent of axes.</p>
                 <p>Under a coordinate rotation by $\theta$, components transform:</p>
                 
@@ -660,7 +660,7 @@
                 
                 <p>Calculating the Work ($W'$) with these transformed components results in algebraic cancellation of cross-terms:</p>
                 
-                <div class="math-highlight eq-num text-center text-2xl font-bold !border-amber-500 !bg-amber-50/80 dark:!bg-amber-900/20 shadow-lg text-amber-900 dark:text-amber-100 rounded-xl">
+                <div class="math-highlight text-center text-2xl font-bold !border-amber-500 !bg-amber-50/80 dark:!bg-amber-900/20 shadow-lg text-amber-900 dark:text-amber-100 rounded-xl">
                     <div>$$W' = W = F_x d_x + F_y d_y$$</div>
                 </div>
 
@@ -733,7 +733,7 @@
 
                 <h3>The Area of Reality (Cross Product)</h3>
                 <p>Consider vectors $\vec{A}$ and $\vec{B}$ defining a parallelogram. Its area is an invariant geometric property, extracted via the magnitude of the <strong>Cross Product</strong>:</p>
-                <div class="math-highlight eq-num text-center text-xl shadow-sm"><div>$$\text{Area} = |\vec{A} \times \vec{B}| = A_x B_y - A_y B_x$$</div></div>
+                <div class="math-highlight text-center text-xl shadow-sm"><div>$$\text{Area} = |\vec{A} \times \vec{B}| = A_x B_y - A_y B_x$$</div></div>
                 
                 <!-- SIMULATION 8 (2D Cross Product Area) -->
                 <div class="simulation-container not-prose reveal my-10">
@@ -818,7 +818,7 @@
                         
                         <p>The force $\vec{F}$ is orthogonal to velocity $\vec{v}$. The dot product of orthogonal vectors is zero.</p>
                         
-                        <div class="math-highlight eq-num !bg-white/50 dark:!bg-slate-900/50 !border-amber-400 !m-6 text-center text-xl shadow-lg rounded-xl">
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-amber-400 !m-6 text-center text-xl shadow-lg rounded-xl">
                             <div>$$P = [q(\vec{v} \times \vec{B})] \cdot \vec{v} = 0$$</div>
                         </div>
                         
@@ -840,7 +840,7 @@
 
                 <p>Vector fields associate a vector with every point in space. To analyze the field's differential geometry independent of coordinates, physicists utilize the <strong>Nabla operator ($\nabla$)</strong>.</p>
 
-                <div class="math-highlight eq-num text-center text-2xl shadow-sm border-cyan-500 dark:border-cyan-400">
+                <div class="math-highlight text-center text-2xl shadow-sm border-cyan-500 dark:border-cyan-400">
                     <div>$$\nabla = \left( \frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z} \right)$$</div>
                 </div>
 
@@ -941,13 +941,13 @@
                         <p>Maxwell utilized Divergence and Curl to formulate electromagnetism independently of specific coordinate geometries.</p>
                         
                         <p><strong class="text-cyan-600 dark:text-cyan-400 font-sans">Gauss's Law for Electricity:</strong></p>
-                        <div class="math-highlight eq-num !bg-white/50 dark:!bg-slate-900/50 !border-cyan-400 !m-2 text-center text-lg shadow-sm rounded-lg p-2">
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-cyan-400 !m-2 text-center text-lg shadow-sm rounded-lg p-2">
                             <div>$$\nabla \cdot \vec{E} = \frac{\rho}{\varepsilon_0}$$</div>
                         </div>
                         <p class="text-sm">The divergence of the electric field equals the local charge density ($\rho$).</p>
 
                         <p><strong class="text-cyan-600 dark:text-cyan-400 font-sans mt-4 block">Faraday's Law of Induction:</strong></p>
-                        <div class="math-highlight eq-num !bg-white/50 dark:!bg-slate-900/50 !border-cyan-400 !m-2 text-center text-lg shadow-sm rounded-lg p-2">
+                        <div class="math-highlight !bg-white/50 dark:!bg-slate-900/50 !border-cyan-400 !m-2 text-center text-lg shadow-sm rounded-lg p-2">
                             <div>$$\nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}$$</div>
                         </div>
                         <p class="text-sm">The curl of the electric field is proportional to the time rate of change of the magnetic field.</p>
@@ -2426,20 +2426,24 @@
             ctxObj.drawFunc = animate; animate();
         };
 
-        // Initialize all simulations safely
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.renderMathInElement) {
+        // Initialize KaTeX safely at bottom of execution block
+        const initMath = () => {
+            if (window.renderMathInElement && document.body) {
                 renderMathInElement(document.body, {
                     delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
                 });
+            } else {
+                setTimeout(initMath, 50); // wait for KaTeX to evaluate
             }
+        };
 
-            initSim0A(); initSim0B(); initSim1(); initSim2(); initSim3(); initSim4(); initSim5(); 
-            initSim6(); initSim6b(); initSim7(); initSim7b(); initSim8(); initSim8b(); 
-            initSim9(); initSim10(); initSim11(); initSim12(); initSim13();
-            
-            document.querySelectorAll('.simulation-container').forEach(c => simObserver.observe(c));
-        });
+        initMath();
+        initSim0A(); initSim0B(); initSim1(); initSim2(); initSim3(); initSim4(); initSim5(); 
+        initSim6(); initSim6b(); initSim7(); initSim7b(); initSim8(); initSim8b(); 
+        initSim9(); initSim10(); initSim11(); initSim12(); initSim13();
+        
+        document.querySelectorAll('.simulation-container').forEach(c => simObserver.observe(c));
+
     </script>
 </body>
 </html>
