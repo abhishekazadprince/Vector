@@ -68,7 +68,7 @@
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; } .dark ::-webkit-scrollbar-thumb { background: #475569; }
         
-        .drop-cap > p:first-of-type::first-letter { float: left; font-size: 4.2rem; line-height: 0.8; padding-right: 0.75rem; padding-top: 0.1rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: #4f46e5; }
+        .drop-cap > p:first-of-type::first-letter { float: left; font-size: 4.5rem; line-height: 1; margin-top: -0.2rem; padding-right: 0.75rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: #4f46e5; }
         .dark .drop-cap > p:first-of-type::first-letter { color: #818cf8; }
         
         .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); } .reveal.active { opacity: 1; transform: translateY(0); }
@@ -79,9 +79,10 @@
         .fig-caption::before { counter-increment: figure; content: "Figure " counter(figure) ": "; font-weight: 700; color: #4f46e5; }
         .dark .fig-caption::before { color: #818cf8; }
         
-        .eq-num { position: relative; width: 100%; display: flex; align-items: center; }
-        .eq-num > div { flex: 1; text-align: center; }
-        .eq-num::after { counter-increment: equation; content: "(Eq. " counter(equation) ")"; position: absolute; right: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #64748b; font-weight: bold; }
+        .eq-num { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; width: 100%; box-sizing: border-box; }
+        .eq-num > div { overflow-x: auto; overflow-y: hidden; text-align: center; display: flex; justify-content: center; align-items: center; padding-bottom: 2px; }
+        .eq-num .katex-display { margin: 0; }
+        .eq-num::after { counter-increment: equation; content: "(Eq. " counter(equation) ")"; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #64748b; font-weight: bold; white-space: nowrap; grid-column: 2; align-self: center; }
         .dark .eq-num::after { color: #94a3b8; }
 
         .motivating-problem { background: linear-gradient(to right, rgba(79, 70, 229, 0.05), transparent); border-left: 4px solid #4f46e5; padding: 1rem 1.5rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 2rem; font-family: 'Outfit', sans-serif; }
@@ -103,7 +104,7 @@
         canvas { cursor: crosshair; max-width: 100%; height: auto; touch-action: none; display: block; -webkit-tap-highlight-color: transparent; }
         .sim-panel { width: 100%; padding: 1.25rem; font-family: 'Outfit', sans-serif; font-size: 0.875rem; z-index: 10;}
         
-        .math-highlight { background: linear-gradient(135deg, rgba(241,245,249,0.8), rgba(255,255,255,0.9)); border-left: 4px solid #4f46e5; padding: 1.5rem; margin: 2rem 0; border-radius: 0 0.75rem 0.75rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); backdrop-filter: blur(5px); overflow-x: auto; }
+        .math-highlight { background: linear-gradient(135deg, rgba(241,245,249,0.8), rgba(255,255,255,0.9)); border-left: 4px solid #4f46e5; padding: 1.5rem; margin: 2rem 0; border-radius: 0 0.75rem 0.75rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); backdrop-filter: blur(5px); }
         .dark .math-highlight { background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9)); border-left: 4px solid #818cf8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
         
         #progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); z-index: 100; width: 0%; transition: width 0.1s ease-out; }
