@@ -1393,9 +1393,11 @@
         });
 
         // Scroll Reveal Animations
+        // FIX APPLIED HERE: Changed threshold from 0.1 to 0 so that it correctly fires on mobile devices 
+        // for extremely tall sections (which would never hit 10% visibility at once).
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
-        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        }, { threshold: 0, rootMargin: "0px 0px -50px 0px" });
         document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
         // --- Canvas Engine Utilities ---
